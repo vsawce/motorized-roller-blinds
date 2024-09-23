@@ -19,3 +19,9 @@ target_link_libraries(hello_world pico_stdlib)
 
 # create map/bin/hex/uf2 file in addition to ELF.
 pico_add_extra_outputs(hello_world)
+
+# Enable USB Serial support (optional, if you're using USB)
+pico_enable_stdio_usb(hello_world 1)
+
+# Or enable UART (if using hardware serial)
+# pico_enable_stdio_uart(hello_world 1)
