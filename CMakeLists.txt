@@ -10,18 +10,18 @@ project(my_project)
 pico_sdk_init()
 
 # rest of your project
-add_executable(hello_world
-    test/hello_world.c
+add_executable(main
+    src/main.cpp
 )
 
 # Add pico_stdlib library which aggregates commonly used features
-target_link_libraries(hello_world pico_stdlib)
+target_link_libraries(main pico_stdlib)
 
 # create map/bin/hex/uf2 file in addition to ELF.
-pico_add_extra_outputs(hello_world)
+pico_add_extra_outputs(main)
 
 # Enable USB Serial support (optional, if you're using USB)
-pico_enable_stdio_usb(hello_world 1)
+pico_enable_stdio_usb(main 1)
 
 # Or enable UART (if using hardware serial)
 # pico_enable_stdio_uart(hello_world 1)
