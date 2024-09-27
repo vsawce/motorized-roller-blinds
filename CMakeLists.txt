@@ -9,9 +9,12 @@ project(my_project)
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
+# Include all src files
+file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h")
+
 # rest of your project
 add_executable(main
-    src/main.cpp
+    ${SOURCES}
 )
 
 # Add pico_stdlib library which aggregates commonly used features
