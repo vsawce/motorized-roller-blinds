@@ -31,5 +31,6 @@
 *.out
 *.app
 
-
+# Pico W Project Specific
 build/
+,vscode/
