@@ -17,8 +17,11 @@ add_executable(main
     ${SOURCES}
 )
 
+# Include lwiopts
+target_include_directories(main PRIVATE drivers/)
+
 # Add pico_stdlib library which aggregates commonly used features
-target_link_libraries(main pico_stdlib)
+target_link_libraries(main pico_stdlib pico_cyw43_arch_lwip_threadsafe_background)
 
 # create map/bin/hex/uf2 file in addition to ELF.
 pico_add_extra_outputs(main)
