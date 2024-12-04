@@ -1,16 +1,14 @@
 #include "motor.h"
 
-//   Phase ABCD Coils
-//   0     1000  A
-//   1     1100  AB
-//   2     0100   B
-//   3     0110   BC
-//   4     0010    C
-//   5     0011    CD
-//   6     0001     D
-//   7     1001  A  D
 
-constexpr uint8_t phaseMap[] = {0x01, 0x03, 0x02, 0x06, 0x04, 0x0c, 0x08, 0x09};
+//  WAVE DRIVE (less power, but less torque)
+//  -----------
+//   Phase DCBA Val
+//   0     0001 0x1
+//   1     0010 0x2
+//   2     0100 0x4
+//   3     1000 0x8
+constexpr uint8_t stepSequence[4] = {0x1, 0x2, 0x4, 0x8}; //Wave drive mode 
 
 uint8_t pinIn[4];
 
@@ -34,17 +32,23 @@ void Motor::init()
     }
 }
 
-void Motor::test()
+void Motor::set_step(uint8_t phase)
+{
+    if (phase < 4) { //Valid phase number
+        for (uint8_t i = 0; i < 4; i++) {
+            gpio_put(pinIn[i], (stepSequence[phase] >> i) & 1);
+        }
+    }
+}
+
+void Motor::testContinuousRotationBlocking()
 {
     uint8_t pos = 0;
 
     while(1) {
-        gpio_put(pinIn[pos], 1);
-        for (uint8_t i = 0; i < 4; i++) {
-            if (i != pos) gpio_put(pinIn[i], 0);
-        }
+        set_step(pos);
         pos++;
         if (pos == 4) pos = 0;
-        sleep_ms(10);
+        sleep_ms(10); //Blocking
     }
 }

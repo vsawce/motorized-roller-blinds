@@ -8,7 +8,8 @@ class Motor
     public:
         Motor(uint8_t pinIn1, uint8_t pinIn2, uint8_t pinIn3, uint8_t pinIn4);
         void init();    //Inits GPIO
-        void test();    //Continuously spins motor
+        void set_step(uint8_t phase);
+        void testContinuousRotationBlocking();    //Continuously spins motor
         // void on();
         // void off();
         // void toggle();
