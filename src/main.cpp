@@ -13,7 +13,7 @@
 
 int main() {
     LED led;
-    Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4);
+    Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
 
     mtr.init();
     stdio_init_all();
@@ -28,7 +28,7 @@ int main() {
     while (true) {
         printf("Hello, world!!\n");
         led.toggle();
-        mtr.test();
+        mtr.testContinuousRotationBlocking();
         //sleep_ms(500);
     }
 } 
