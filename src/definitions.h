@@ -7,13 +7,18 @@
 //  PINS    //
 //////////////
 
-namespace PIN {
-    //const uint8_t LED = 25;
+namespace PIN
+{ 
+    // constexpr for compile-time evalutation (modern C++?)
+    constexpr uint8_t ULN2003_IN1 = 2;  //GPIO2
+    constexpr uint8_t ULN2003_IN2 = 3;  //GPIO3
+    constexpr uint8_t ULN2003_IN3 = 4;  //GPIO4
+    constexpr uint8_t ULN2003_IN4 = 5;  //GPIO5
 }
 
 namespace CYW43_PIN
 {
-    const uint8_t LED = 0;
+    constexpr uint8_t LED = 0;
 }
 
 
