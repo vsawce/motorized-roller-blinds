@@ -9,10 +9,13 @@
 #include "pico/cyw43_arch.h"
 #include "led.h"
 #include "init.h"
+#include "motor.h"
 
 int main() {
     LED led;
+    Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4);
 
+    mtr.init();
     stdio_init_all();
     //led.init_led();
     if (init_wifi_led())
@@ -21,9 +24,11 @@ int main() {
         while(1); //Hang indefinitely
     }
 
+
     while (true) {
         printf("Hello, world!!\n");
         led.toggle();
-        sleep_ms(500);
+        mtr.test();
+        //sleep_ms(500);
     }
 } 
