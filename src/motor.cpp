@@ -33,6 +33,10 @@ constexpr uint8_t halfStepDriveStepSequence[8] = {0x1, 0x3, 0x2, 0x6, 0x4, 0xc, 
 
 constexpr uint8_t NUM_PINS = 4;
 
+//  5.625 deg / 64 steps
+//  (360 deg / 1 full rev) * (64 steps / 5.625 deg) = 64 * 64 = 2048 steps per full rev
+constexpr uint16_t STEPS_PER_FULL_REV = 2048;
+
 ////////////////////////////////
 
 
@@ -49,14 +53,17 @@ Motor::Motor(uint8_t pinIn1, uint8_t pinIn2, uint8_t pinIn3, uint8_t pinIn4, Mot
     if (dm == MotorDriveMode::NormalDrive) {
         m_driveMode = normalDriveStepSequence;
         m_numPhases = 4;
+        m_numStepsPerFullRotation = STEPS_PER_FULL_REV;
     }
     else if (dm == MotorDriveMode::WaveDrive) {
         m_driveMode = waveDriveStepSequence;
         m_numPhases = 4;
+        m_numStepsPerFullRotation = STEPS_PER_FULL_REV;
     }
     else { //Half Step Drive
         m_driveMode = halfStepDriveStepSequence;
         m_numPhases = 8; //Half the speed
+        m_numStepsPerFullRotation = STEPS_PER_FULL_REV*2;
     }
 }
 
@@ -87,5 +94,16 @@ void Motor::testContinuousRotationBlocking()
         pos++;
         if (pos == m_numPhases) pos = 0;
         sleep_ms(10); //Blocking
+    }
+}
+
+void Motor::testOneFullRotationBlocking()
+{
+    while(1) {
+        for (uint16_t pos = 0; pos < m_numStepsPerFullRotation; pos++) {
+            set_step(pos % m_numPhases);
+            sleep_ms(10); //Blocking
+        }
+        sleep_ms(2000); //Wait for two secs
     }
 }

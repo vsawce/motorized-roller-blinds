@@ -1,7 +1,6 @@
 /**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
+ *  Designed by Vincent Saw
+ * 
  */
 
 #include <stdio.h>
@@ -28,7 +27,8 @@ int main() {
     while (true) {
         printf("Hello, world!!\n");
         led.toggle();
-        mtr.testContinuousRotationBlocking();
+        //mtr.testContinuousRotationBlocking();
+        mtr.testOneFullRotationBlocking();
         //sleep_ms(500);
     }
 } 
