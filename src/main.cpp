@@ -27,8 +27,8 @@ int main() {
     while (true) {
         printf("Hello, world!!\n");
         led.toggle();
-        //mtr.testContinuousRotationBlocking();
-        mtr.testOneFullRotationBlocking();
+        //mtr.testContinuousRotationBlocking(MotorDriveDirection::Forward);
+        mtr.testOneFullRotationBlocking(MotorDriveDirection::Forward);
         //sleep_ms(500);
     }
 } 

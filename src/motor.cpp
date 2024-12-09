@@ -85,25 +85,48 @@ void Motor::set_step(uint8_t phase)
     }
 }
 
-void Motor::testContinuousRotationBlocking()
+void Motor::testContinuousRotationBlocking(MotorDriveDirection dir)
 {
-    uint8_t pos = 0;
+    uint8_t pos;
 
-    while(1) {
-        set_step(pos);
-        pos++;
-        if (pos == m_numPhases) pos = 0;
-        sleep_ms(10); //Blocking
+    if (dir == MotorDriveDirection::Forward) {
+        pos = 0;
+        while(1) {
+            set_step(pos);
+            pos++;
+            if (pos == m_numPhases) pos = 0;
+            sleep_ms(10); //Blocking
+        }
+    }
+    else {
+        pos = m_numPhases-1;
+        while(1) {
+            set_step(pos);
+            pos--;
+            if (pos == std::numeric_limits<uint8_t>::max()) pos = m_numPhases-1;
+            sleep_ms(10); //Blocking
+        }
     }
 }
 
-void Motor::testOneFullRotationBlocking()
+void Motor::testOneFullRotationBlocking(MotorDriveDirection dir)
 {
-    while(1) {
-        for (uint16_t pos = 0; pos < m_numStepsPerFullRotation; pos++) {
-            set_step(pos % m_numPhases);
-            sleep_ms(10); //Blocking
+    if (dir == MotorDriveDirection::Forward) {
+        while(1) {
+            for (uint16_t pos = 0; pos < m_numStepsPerFullRotation; pos++) {
+                set_step(pos % m_numPhases);
+                sleep_ms(10); //Blocking
+            }
+            sleep_ms(2000); //Wait for two secs
         }
-        sleep_ms(2000); //Wait for two secs
+    }
+    else {
+        while(1) {
+            for (uint16_t pos = m_numStepsPerFullRotation; pos > 0; pos--) {
+                set_step(pos % m_numPhases);
+                sleep_ms(10); //Blocking
+            }
+            sleep_ms(2000); //Wait for two secs
+        }
     }
 }
