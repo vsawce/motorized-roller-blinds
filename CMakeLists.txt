@@ -1,33 +1,41 @@
 cmake_minimum_required(VERSION 3.13)
 
-# initialize the SDK based on PICO_SDK_PATH
-# note: this must happen before project()
+# Pull in SDK (must be before project)
 include(pico_sdk_import.cmake)
+#include(pico_extras_import_optional.cmake)
 
-project(my_project)
+project(pico_examples C CXX ASM)
 
-# initialize the Raspberry Pi Pico SDK
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+if (PICO_SDK_VERSION_STRING VERSION_LESS "2.1.0")
+    message(FATAL_ERROR "Raspberry Pi Pico SDK version 2.1.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
+endif()
+
+set(MOTORIZED_ROLLER_BLINDS_PATH ${PROJECT_SOURCE_DIR})
+
+# If you want debug output from USB (pass -DPICO_STDIO_USB=1) this ensures you don't lose any debug output while USB is set up
+if (NOT DEFINED PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS)
+    set(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS 3000)
+endif()
+
+# Initialize the SDK
 pico_sdk_init()
 
-# Include all src files
-file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h")
+add_compile_options(-Wall
+        -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
+        -Wno-unused-function # we have some for the docs that aren't called
+        )
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wno-maybe-uninitialized)
+endif()
 
-# rest of your project
-add_executable(main
-    ${SOURCES}
-)
+if (NOT FREERTOS_KERNEL_PATH AND NOT DEFINED ENV{FREERTOS_KERNEL_PATH})
+    message("Skipping FreeRTOS examples as FREERTOS_KERNEL_PATH not defined")
+    return()
+endif()
 
-# Include lwiopts
-target_include_directories(main PRIVATE drivers/)
+include(FreeRTOS_Kernel_import.cmake)
 
-# Add pico_stdlib library which aggregates commonly used features
-target_link_libraries(main pico_stdlib pico_cyw43_arch_lwip_threadsafe_background)
-
-# create map/bin/hex/uf2 file in addition to ELF.
-pico_add_extra_outputs(main)
-
-# Enable USB Serial support (optional, if you're using USB)
-pico_enable_stdio_usb(main 1)
-
-# Or enable UART (if using hardware serial)
-# pico_enable_stdio_uart(hello_world 1)
+add_subdirectory(examples)
