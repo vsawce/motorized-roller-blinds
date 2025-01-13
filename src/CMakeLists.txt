@@ -10,8 +10,8 @@ target_include_directories(${TARGET_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/drivers/
     )
 target_link_libraries(${TARGET_NAME} PRIVATE
-    #pico_async_context_freertos
-    #FreeRTOS-Kernel-Heap4
+    pico_async_context_freertos
+    FreeRTOS-Kernel-Heap4
     pico_stdlib
     pico_cyw43_arch_lwip_threadsafe_background
     )
