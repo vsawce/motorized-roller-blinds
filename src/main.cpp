@@ -16,6 +16,10 @@
 #include "init.h"
 #include "motor.h"
 
+//##################################//
+//          USER MACROS             //
+//##################################//
+
 // Which core to run on if configNUMBER_OF_CORES==1
 #ifndef RUN_FREE_RTOS_ON_CORE
 #define RUN_FREE_RTOS_ON_CORE 0
@@ -44,6 +48,11 @@
 #define BLINK_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
 #define WORKER_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
 
+
+//##################################//
+//          ???????????             //
+//##################################//
+
 #include "pico/async_context_freertos.h"
 static async_context_freertos_t async_context_instance;
 
@@ -57,8 +66,15 @@ static async_context_t *example_async_context(void) {
     return &async_context_instance.core;
 }
 
-#if USE_LED
 
+//##################################//
+//              TASKS               //
+//##################################//
+///////////////////
+// BLINK TASK
+///////////////////
+
+#if USE_LED
 void blink_task(__unused void *params) {
     if (params == NULL) {
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
@@ -84,6 +100,9 @@ void blink_task(__unused void *params) {
 }
 #endif // USE_LED
 
+///////////////////
+//  MOTOR TASK
+///////////////////
 
 //Can remove typedef if in C++ do get similar typedef struct behavior from C
 struct MotorTaskParams {
@@ -124,6 +143,9 @@ void motor_task(void *pvParameters) {
 
 }
 
+//##################################//
+//              MAIN                //
+//##################################//
 int main() {
     LED led;
 
@@ -136,14 +158,14 @@ int main() {
     stdio_init_all();
     
 #if USE_LED
-    //Init LED, if fails print
+    //Init LED, if it fails then print
     if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
     xTaskCreate(blink_task, "BlinkTask", 256, &led, 1, NULL);
 #endif
 
     MotorTaskParams mtParams = {
-        .s_mtr_ptr = &mtr,             // Pass the address of the LED object
-        .s_motorDriveDir_ptr = &mtrDrvDir // Pass the address of the motor drive direction variable
+        .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
+        .s_motorDriveDir_ptr = &mtrDrvDir   // Pass the address of the motor drive direction variable
     };
 
     xTaskCreate(motor_task, "MotorTask", 256, &mtParams, 1, NULL);
@@ -151,12 +173,4 @@ int main() {
     // Start the scheduler
     vTaskStartScheduler();
 
-
-    // while (true) {
-    //     printf("Hello, world!!\n");
-    //     led.toggle();
-    //     //mtr.testContinuousRotationBlocking(MotorDriveDirection::Forward);
-    //     mtr.testOneFullRotationBlocking(MotorDriveDirection::Forward);
-    //     //sleep_ms(500);
-    // }
 } 
