@@ -67,6 +67,21 @@ Motor::Motor(uint8_t pinIn1, uint8_t pinIn2, uint8_t pinIn3, uint8_t pinIn4, Mot
     }
 }
 
+// uint8_t Motor::getDriveMode()
+// {
+//     return *m_driveMode;
+// }
+
+uint8_t Motor::getNumPhases()
+{
+    return m_numPhases;
+}
+
+uint16_t Motor::getNumStepsPerFullRotation()
+{
+    return m_numStepsPerFullRotation;
+}
+
 void Motor::init()
 {
     for (uint8_t i = 0; i < NUM_PINS; i++) //4 GPIO

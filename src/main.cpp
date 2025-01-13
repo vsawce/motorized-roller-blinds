@@ -85,12 +85,53 @@ void blink_task(__unused void *params) {
 #endif // USE_LED
 
 
+//Can remove typedef if in C++ do get similar typedef struct behavior from C
+struct MotorTaskParams {
+    Motor *s_mtr_ptr;         // Pointer to the LED object
+    MotorDriveDirection *s_motorDriveDir_ptr; // Pointer to the blink delay value
+};
+
+void motor_task(void *pvParameters) {
+    if (pvParameters == NULL) {
+        vTaskDelete(NULL);  // Delete this task if parameters are invalid
+    }
+
+    MotorTaskParams *params = (MotorTaskParams *)pvParameters;
+    Motor *mtr_ptr = params->s_mtr_ptr;
+    MotorDriveDirection *motorDriveDir_ptr = params->s_motorDriveDir_ptr;
+
+
+
+    const uint8_t numPhases = mtr_ptr->getNumPhases();
+    const uint16_t numStepsPerFullRotation = mtr_ptr->getNumStepsPerFullRotation();
+
+    while (true) {
+        if (*motorDriveDir_ptr == MotorDriveDirection::Forward) {
+            for (uint16_t pos = 0; pos < numStepsPerFullRotation; pos++) {
+                mtr_ptr->set_step(pos % numPhases);
+                vTaskDelay(pdMS_TO_TICKS(10));
+            }
+            vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
+        }
+        else {
+            for (uint16_t pos = numStepsPerFullRotation; pos > 0; pos--) {
+                mtr_ptr->set_step(pos % numPhases);
+                vTaskDelay(pdMS_TO_TICKS(10));
+            }
+            vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
+        }
+    }
+
+}
+
 int main() {
     LED led;
 
-    //Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
+    Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
     
-    //mtr.init();
+    mtr.init();
+
+    MotorDriveDirection mtrDrvDir = MotorDriveDirection::Forward;
 
     stdio_init_all();
     
@@ -99,6 +140,13 @@ int main() {
     if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
     xTaskCreate(blink_task, "BlinkTask", 256, &led, 1, NULL);
 #endif
+
+    MotorTaskParams mtParams = {
+        .s_mtr_ptr = &mtr,             // Pass the address of the LED object
+        .s_motorDriveDir_ptr = &mtrDrvDir // Pass the address of the motor drive direction variable
+    };
+
+    xTaskCreate(motor_task, "MotorTask", 256, &mtParams, 1, NULL);
 
     // Start the scheduler
     vTaskStartScheduler();
