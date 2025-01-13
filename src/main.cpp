@@ -94,10 +94,11 @@ int main() {
 
     stdio_init_all();
     
+#if USE_LED
     //Init LED, if fails print
     if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
-
     xTaskCreate(blink_task, "BlinkTask", 256, &led, 1, NULL);
+#endif
 
     // Start the scheduler
     vTaskStartScheduler();
