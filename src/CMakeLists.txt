@@ -1,9 +1,13 @@
 set(TARGET_NAME main)
+
+file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
+
 add_executable(${TARGET_NAME}
-    main.cpp
+    ${SOURCES}
     )
 target_include_directories(${TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/..
+    ${CMAKE_SOURCE_DIR}/drivers/
     )
 target_link_libraries(${TARGET_NAME} PRIVATE
     #pico_async_context_freertos
