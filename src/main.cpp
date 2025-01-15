@@ -48,6 +48,10 @@
 #define BLINK_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
 #define WORKER_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
 
+// Logging definitions
+#define LOG_QUEUE_SIZE 10           // Maximum number of messages in the queue
+#define LOG_MESSAGE_MAX_LENGTH 64   // Maximum length of each log message
+
 
 //##################################//
 //          ???????????             //
@@ -66,6 +70,18 @@ static async_context_t *example_async_context(void) {
     return &async_context_instance.core;
 }
 
+QueueHandle_t logQueue;           // Global log queue
+
+// Thread-safe log sending function
+void send_log(const char *message) {
+    if (logQueue != NULL) {
+        if (xQueueSend(logQueue, message, pdMS_TO_TICKS(100)) != pdPASS) {
+            // Handle queue full (optional, TODO?)
+            //printf("Log queue full. Message dropped: %s\n", message); // Add this for debugging
+        }
+    }
+}
+
 
 //##################################//
 //              TASKS               //
@@ -77,6 +93,7 @@ static async_context_t *example_async_context(void) {
 #if USE_LED
 void blink_task(__unused void *params) {
     if (params == NULL) {
+        send_log("Blink task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
@@ -85,6 +102,7 @@ void blink_task(__unused void *params) {
 
     while (true) {
         led_ptr->toggle();
+        send_log("Toggled");
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 
@@ -112,6 +130,7 @@ struct MotorTaskParams {
 
 void motor_task(void *pvParameters) {
     if (pvParameters == NULL) {
+        send_log("Motor task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
@@ -143,6 +162,23 @@ void motor_task(void *pvParameters) {
 
 }
 
+///////////////////
+//  USB DEBUG TASK
+///////////////////
+
+void usb_debug_task(__unused void *params) {
+    char logBuffer[LOG_MESSAGE_MAX_LENGTH];
+
+    while (true) {
+        // Wait for a log message from the queue
+        if (xQueueReceive(logQueue, logBuffer, portMAX_DELAY) == pdPASS) {
+            // Send the log message over USB
+            printf("USB Debug Log: %s\n", logBuffer);
+        }
+    }
+}
+
+
 //##################################//
 //              MAIN                //
 //##################################//
@@ -150,18 +186,25 @@ int main() {
     LED led;
 
     Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
-    
     mtr.init();
-
     MotorDriveDirection mtrDrvDir = MotorDriveDirection::Forward;
 
     stdio_init_all();
+    printf("System initializing...\n");
     
 #if USE_LED
     //Init LED, if it fails then print
     if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
     xTaskCreate(blink_task, "BlinkTask", 256, &led, 1, NULL);
 #endif
+
+    logQueue = xQueueCreate(LOG_QUEUE_SIZE, LOG_MESSAGE_MAX_LENGTH);
+    if (logQueue == NULL) {
+        printf("Failed to create log queue\n");
+        return 1;
+    }
+
+    xTaskCreate(usb_debug_task, "USBDebugTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 
     MotorTaskParams mtParams = {
         .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
