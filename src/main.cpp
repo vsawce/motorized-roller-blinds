@@ -58,17 +58,17 @@
 //##################################//
 
 #include "pico/async_context_freertos.h"
-static async_context_freertos_t async_context_instance;
+// static async_context_freertos_t async_context_instance;
 
-// Create an async context
-static async_context_t *example_async_context(void) {
-    async_context_freertos_config_t config = async_context_freertos_default_config();
-    config.task_priority = WORKER_TASK_PRIORITY; // defaults to ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_PRIORITY
-    config.task_stack_size = WORKER_TASK_STACK_SIZE; // defaults to ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_STACK_SIZE
-    if (!async_context_freertos_init(&async_context_instance, &config))
-        return NULL;
-    return &async_context_instance.core;
-}
+// // Create an async context
+// static async_context_t *example_async_context(void) {
+//     async_context_freertos_config_t config = async_context_freertos_default_config();
+//     config.task_priority = WORKER_TASK_PRIORITY; // defaults to ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_PRIORITY
+//     config.task_stack_size = WORKER_TASK_STACK_SIZE; // defaults to ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_STACK_SIZE
+//     if (!async_context_freertos_init(&async_context_instance, &config))
+//         return NULL;
+//     return &async_context_instance.core;
+// }
 
 QueueHandle_t logQueue;           // Global log queue
 
