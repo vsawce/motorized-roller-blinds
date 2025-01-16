@@ -39,14 +39,14 @@
 #define LED_DELAY_MS 1000
 
 // Priorities of our threads - higher numbers are higher priority
-#define MAIN_TASK_PRIORITY      ( tskIDLE_PRIORITY + 2UL )
-#define BLINK_TASK_PRIORITY     ( tskIDLE_PRIORITY + 1UL )
-#define WORKER_TASK_PRIORITY    ( tskIDLE_PRIORITY + 4UL )
+#define USB_DEBUG_TASK_PRIORITY     ( tskIDLE_PRIORITY + 3UL )  //Highest
+#define MOTOR_TASK_PRIORITY         ( tskIDLE_PRIORITY + 2UL )
+#define BLINK_TASK_PRIORITY         ( tskIDLE_PRIORITY + 1UL )  //Lowest
 
 // Stack sizes of our threads in words (4 bytes)
-#define MAIN_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
-#define BLINK_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
-#define WORKER_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
+#define USB_DEBUG_TASK_STACK_SIZE   ( configMINIMAL_STACK_SIZE + 128 )
+#define MOTOR_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE + 64 )
+#define BLINK_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE )
 
 // Logging definitions
 #define LOG_QUEUE_SIZE 10           // Maximum number of messages in the queue
@@ -195,7 +195,7 @@ int main() {
 #if USE_LED
     //Init LED, if it fails then print
     if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
-    xTaskCreate(blink_task, "BlinkTask", 256, &led, 1, NULL);
+    xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &led, BLINK_TASK_PRIORITY, NULL);
 #endif
 
     logQueue = xQueueCreate(LOG_QUEUE_SIZE, LOG_MESSAGE_MAX_LENGTH);
@@ -204,14 +204,14 @@ int main() {
         return 1;
     }
 
-    xTaskCreate(usb_debug_task, "USBDebugTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+    xTaskCreate(usb_debug_task, "USBDebugTask", USB_DEBUG_TASK_STACK_SIZE, NULL, USB_DEBUG_TASK_PRIORITY, NULL);
 
     MotorTaskParams mtParams = {
         .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
         .s_motorDriveDir_ptr = &mtrDrvDir   // Pass the address of the motor drive direction variable
     };
 
-    xTaskCreate(motor_task, "MotorTask", 256, &mtParams, 1, NULL);
+    xTaskCreate(motor_task, "MotorTask", MOTOR_TASK_STACK_SIZE, &mtParams, MOTOR_TASK_PRIORITY, NULL);
 
     // Start the scheduler
     vTaskStartScheduler();
