@@ -73,7 +73,8 @@
 QueueHandle_t logQueue;           // Global log queue
 
 // Thread-safe log sending function
-void send_log(const char *message) {
+void send_log(const char *message)
+{
     if (logQueue != NULL) {
         if (xQueueSend(logQueue, message, pdMS_TO_TICKS(100)) != pdPASS) {
             // Handle queue full (optional, TODO?)
@@ -91,14 +92,14 @@ void send_log(const char *message) {
 ///////////////////
 
 #if USE_LED
-void blink_task(__unused void *params) {
+void blink_task(__unused void *params)
+{
     if (params == NULL) {
         send_log("Blink task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
     LED *led_ptr = static_cast<LED *>(params);
-
 
     while (true) {
         led_ptr->toggle();
@@ -123,12 +124,14 @@ void blink_task(__unused void *params) {
 ///////////////////
 
 //Can remove typedef if in C++ do get similar typedef struct behavior from C
-struct MotorTaskParams {
+struct MotorTaskParams
+{
     Motor *s_mtr_ptr;         // Pointer to the LED object
     MotorDriveDirection *s_motorDriveDir_ptr; // Pointer to the blink delay value
 };
 
-void motor_task(void *pvParameters) {
+void motor_task(void *pvParameters)
+{
     if (pvParameters == NULL) {
         send_log("Motor task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
@@ -137,8 +140,6 @@ void motor_task(void *pvParameters) {
     MotorTaskParams *params = (MotorTaskParams *)pvParameters;
     Motor *mtr_ptr = params->s_mtr_ptr;
     MotorDriveDirection *motorDriveDir_ptr = params->s_motorDriveDir_ptr;
-
-
 
     const uint8_t numPhases = mtr_ptr->getNumPhases();
     const uint16_t numStepsPerFullRotation = mtr_ptr->getNumStepsPerFullRotation();
@@ -166,7 +167,8 @@ void motor_task(void *pvParameters) {
 //  USB DEBUG TASK
 ///////////////////
 
-void usb_debug_task(__unused void *params) {
+void usb_debug_task(__unused void *params)
+{
     char logBuffer[LOG_MESSAGE_MAX_LENGTH];
 
     while (true) {
@@ -182,7 +184,8 @@ void usb_debug_task(__unused void *params) {
 //##################################//
 //              MAIN                //
 //##################################//
-int main() {
+int main()
+{
     LED led;
 
     Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
