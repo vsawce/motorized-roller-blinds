@@ -145,20 +145,7 @@ void motor_task(void *pvParameters)
     const uint16_t numStepsPerFullRotation = mtr_ptr->getNumStepsPerFullRotation();
 
     while (true) {
-        if (*motorDriveDir_ptr == MotorDriveDirection::Forward) {
-            for (uint16_t pos = 0; pos < numStepsPerFullRotation; pos++) {
-                mtr_ptr->set_step(pos % numPhases);
-                vTaskDelay(pdMS_TO_TICKS(10));
-            }
-            vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
-        }
-        else {
-            for (uint16_t pos = numStepsPerFullRotation; pos > 0; pos--) {
-                mtr_ptr->set_step(pos % numPhases);
-                vTaskDelay(pdMS_TO_TICKS(10));
-            }
-            vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
-        }
+        mtr_ptr->rotateNumFullRotations(*motorDriveDir_ptr, 3);
     }
 
 }

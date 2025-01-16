@@ -4,6 +4,10 @@
 #include "pico/stdlib.h"
 #include <limits>
 
+//RTOS task
+#include "FreeRTOS.h"
+#include "task.h" 
+
 enum class MotorDriveMode {
     WaveDrive,
     NormalDrive,
@@ -26,6 +30,8 @@ class Motor
         void set_step(uint8_t phase);
         void testContinuousRotationBlocking(MotorDriveDirection dir);  //Continuously spins motor
         void testOneFullRotationBlocking(MotorDriveDirection dir);     //Continuously rotates shaft fully once in intervals   
+        void rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations);   //Rotate shaft amount of degrees
+
 
     private: //m_ naming convention for private member variables
         const uint8_t   *m_driveMode;
