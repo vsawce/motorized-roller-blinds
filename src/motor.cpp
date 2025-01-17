@@ -191,20 +191,19 @@ void Motor::rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations
 //Non-blocking (NEED TO VALIDATE DISTANCE ACCURACY)
 void Motor::rotateLinearHeightMillimeters(MotorDriveDirection dir, uint8_t height_mm)
 {
-    uint32_t numStepsToRotate = m_numStepsPerFullRotation * 100; //Times 100 because later divide by PI_TIMES_100
-    uint32_t maxHeight_mm = std::numeric_limits<uint32_t>::max() / numStepsToRotate;
+    uint32_t numStepsToRotate = m_numStepsPerFullRotation * 100; //Times 100 because later divide by PI_TIMES_100 
         
-    //If input would cause to exceed uint32_t limit
-    if (height_mm > maxHeight_mm) { 
+    //If height input would cause to exceed uint32_t limit
+    if (height_mm > std::numeric_limits<uint32_t>::max()/numStepsToRotate) { 
         //send_log("rotateLinearHeightMillimeters exceeded maximum height (based on drive method)!");
         return; //Exit function
     }
 
-    //Perform rest of calculation if input is OK
+    //Perform rest of calculation if input is OK. Multiply first to reduce error
     numStepsToRotate *= height_mm;
     numStepsToRotate /= BLINDS::SHAFT_DIAMETER_MM * PI_TIMES_100;
     
-    printf("Rotating %d steps", numStepsToRotate);
+    //printf("Rotating %d steps\n", numStepsToRotate);
    
     rotateNumSteps(dir, numStepsToRotate);
 }
