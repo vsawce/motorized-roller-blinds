@@ -145,7 +145,9 @@ void motor_task(void *pvParameters)
     const uint16_t numStepsPerFullRotation = mtr_ptr->getNumStepsPerFullRotation();
 
     while (true) {
-        mtr_ptr->rotateNumFullRotations(*motorDriveDir_ptr, 3);
+        //mtr_ptr->rotateNumFullRotations(*motorDriveDir_ptr, 3);
+        mtr_ptr->rotateLinearHeightMillimeters(*motorDriveDir_ptr, 79);
+        vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs between each operation
     }
 
 }

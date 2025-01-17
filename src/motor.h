@@ -2,11 +2,14 @@
 #define MOTOR_H
 
 #include "pico/stdlib.h"
+#include <stdio.h>
 #include <limits>
 
 //RTOS task
 #include "FreeRTOS.h"
 #include "task.h" 
+
+#include "definitions.h"
 
 enum class MotorDriveMode {
     WaveDrive,

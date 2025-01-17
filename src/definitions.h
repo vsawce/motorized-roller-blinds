@@ -3,6 +3,16 @@
 
 #include "pico/stdlib.h"
 
+//////////////////////////
+//  BLIND PARAMETERS    //
+/////////////////////////
+
+namespace BLINDS
+{
+    constexpr uint8_t SHAFT_DIAMETER_MM = 25;       //example value 2.5cm
+    constexpr uint16_t WINDOW_HEIGHT_MM  = 1000;    //example value 1m
+}
+
 //////////////
 //  PINS    //
 //////////////
