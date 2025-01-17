@@ -123,7 +123,6 @@ void Motor::calibrateCurrentStepPosZero()
     m_currentStepPos = 0;
 }
 
-//Non-blocking
 void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
 {
     if (dir == MotorDriveDirection::Forward) {
@@ -150,13 +149,18 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
     }
 }
 
-//Non-blocking
 void Motor::rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations)
 {
     rotateNumSteps(dir, m_numStepsPerFullRotation*numRotations);
 }
 
-//Non-blocking (NEED TO VALIDATE DISTANCE ACCURACY)
+
+void Motor::rotateToPercent(uint8_t percent)
+{
+    //TODO
+}
+
+//NEED TO VALIDATE DISTANCE ACCURACY
 void Motor::rotateLinearHeightMillimeters(MotorDriveDirection dir, uint8_t height_mm)
 {
     uint32_t numStepsToRotate = m_numStepsPerFullRotation * 100; //Times 100 because later divide by PI_TIMES_100 
