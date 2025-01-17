@@ -165,7 +165,7 @@ void Motor::rotateLinearHeightMillimeters(MotorDriveDirection dir, uint8_t heigh
     uint32_t numStepsToRotate = m_numStepsPerFullRotation * 100; //Times 100 because later divide by PI_TIMES_100 
         
     //If height input would cause to exceed uint32_t limit
-    if (height_mm > std::numeric_limits<uint32_t>::max()/numStepsToRotate) { 
+    if (height_mm > std::numeric_limits<decltype(numStepsToRotate)>::max()/numStepsToRotate) { 
         //send_log("rotateLinearHeightMillimeters exceeded maximum height (based on drive method)!");
         return; //Exit function
     }
