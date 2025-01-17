@@ -10,7 +10,7 @@
 namespace BLINDS
 {
     constexpr uint8_t SHAFT_DIAMETER_MM = 25;       //example value 2.5cm
-    constexpr uint16_t WINDOW_HEIGHT_MM  = 1000;    //example value 1m
+    constexpr uint16_t WINDOW_HEIGHT_MM  = 100;    //example value 0.1m (low for testing reasons)
 }
 
 //////////////

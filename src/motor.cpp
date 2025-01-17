@@ -128,12 +128,22 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
 {
     if (dir == MotorDriveDirection::Forward) {
         for (uint16_t pos = 0; pos < numSteps; pos++) {
+            if (m_currentStepPos == m_windowHeightLimitSteps) {
+                printf("Max window height reached! Current/max pos: %u steps\n", m_currentStepPos);
+                break;
+            }
+            m_currentStepPos++;
             set_step(pos % m_numPhases);
             vTaskDelay(pdMS_TO_TICKS(10));
         }
     }
     else {
         for (uint16_t pos = numSteps; pos > 0; pos--) {
+            if (m_currentStepPos == 0) {
+                printf("Min window retraction reached! Current pos is zero!\n");
+                break;
+            }
+            m_currentStepPos--;
             set_step(pos % m_numPhases);
             vTaskDelay(pdMS_TO_TICKS(10));
         }
