@@ -30,7 +30,9 @@ class Motor
         void set_step(uint8_t phase);
         void testContinuousRotationBlocking(MotorDriveDirection dir);  //Continuously spins motor
         void testOneFullRotationBlocking(MotorDriveDirection dir);     //Continuously rotates shaft fully once in intervals   
-        void rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations);   //Rotate shaft amount of degrees
+        void rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps);                //Rotate based on # steps
+        void rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations);     //Rotate shaft amount of degrees
+        void rotateLinearHeightMillimeters(MotorDriveDirection dir, uint8_t height_mm); //Rotate linear distance
 
 
     private: //m_ naming convention for private member variables

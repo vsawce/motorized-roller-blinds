@@ -147,6 +147,23 @@ void Motor::testOneFullRotationBlocking(MotorDriveDirection dir)
 }
 
 //Non-blocking
+void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
+{
+    if (dir == MotorDriveDirection::Forward) {
+        for (uint16_t pos = 0; pos < numSteps; pos++) {
+            set_step(pos % m_numPhases);
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+    }
+    else {
+        for (uint16_t pos = numSteps; pos > 0; pos--) {
+            set_step(pos % m_numPhases);
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+    }
+}
+
+//Non-blocking
 void Motor::rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations)
 {
     if (dir == MotorDriveDirection::Forward) {
