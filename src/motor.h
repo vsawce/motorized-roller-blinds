@@ -29,8 +29,11 @@ class Motor
         // uint8_t getDriveMode();  // Currently points to step sequence arrays. Need to get MotorDriveMode enum
         uint8_t getNumPhases();
         uint16_t getNumStepsPerFullRotation();
+        uint32_t getCurrentStepPos();
+        uint32_t getWindowHeightLimitSteps();
         void init();    //Inits GPIO
         void set_step(uint8_t phase);
+        void calibrateCurrentStepPosZero();     //Call when motor is in zero'd position
         void rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps);                //Rotate based on # steps
         void rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations);     //Rotate shaft amount of degrees
         void rotateLinearHeightMillimeters(MotorDriveDirection dir, uint8_t height_mm); //Rotate linear distance
@@ -40,6 +43,8 @@ class Motor
         const uint8_t   *m_driveMode;
         uint8_t         m_numPhases;
         uint16_t        m_numStepsPerFullRotation;
+        uint32_t        m_currentStepPos;
+        uint32_t        m_windowHeightLimitSteps;
         
 };
 

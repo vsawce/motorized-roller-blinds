@@ -12,6 +12,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "definitions.h"
 #include "led.h"
 #include "init.h"
 #include "motor.h"
@@ -183,6 +184,7 @@ int main()
 
     stdio_init_all();
     printf("System initializing...\n");
+    printf("\"BLINDS::WINDOW_HEIGHT_MM\":%dmm\t\"getWindowHeightLimitSteps()\": %dsteps\n", BLINDS::WINDOW_HEIGHT_MM, mtr.getWindowHeightLimitSteps());
     
 #if USE_LED
     //Init LED, if it fails then print

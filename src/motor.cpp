@@ -67,6 +67,12 @@ Motor::Motor(uint8_t pinIn1, uint8_t pinIn2, uint8_t pinIn3, uint8_t pinIn4, Mot
         m_numPhases = 8; //Half the speed
         m_numStepsPerFullRotation = STEPS_PER_FULL_REV*2;
     }
+
+    m_currentStepPos = 0;
+
+    //Turn linear window height to max # of steps
+    m_windowHeightLimitSteps = (m_numStepsPerFullRotation * 100 * BLINDS::WINDOW_HEIGHT_MM) / (BLINDS::SHAFT_DIAMETER_MM * PI_TIMES_100);
+
 }
 
 // uint8_t Motor::getDriveMode()
@@ -82,6 +88,16 @@ uint8_t Motor::getNumPhases()
 uint16_t Motor::getNumStepsPerFullRotation()
 {
     return m_numStepsPerFullRotation;
+}
+
+uint32_t Motor::getCurrentStepPos()
+{
+    return m_currentStepPos;
+}
+
+uint32_t Motor::getWindowHeightLimitSteps()
+{
+    return m_windowHeightLimitSteps;
 }
 
 void Motor::init()
@@ -100,6 +116,11 @@ void Motor::set_step(uint8_t phase)
             gpio_put(pinIn[i], (m_driveMode[phase] >> i) & 1);
         }
     }
+}
+
+void Motor::calibrateCurrentStepPosZero()
+{
+    m_currentStepPos = 0;
 }
 
 //Non-blocking
