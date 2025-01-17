@@ -128,7 +128,7 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
 {
     if (dir == MotorDriveDirection::Forward) {
         for (uint16_t pos = 0; pos < numSteps; pos++) {
-            if (m_currentStepPos == m_windowHeightLimitSteps) {
+            if (m_currentStepPos == m_windowHeightLimitSteps) { //Release motor?
                 printf("Max window height reached! Current/max pos: %u steps\n", m_currentStepPos);
                 break;
             }
@@ -139,7 +139,7 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
     }
     else {
         for (uint16_t pos = numSteps; pos > 0; pos--) {
-            if (m_currentStepPos == 0) {
+            if (m_currentStepPos == 0) { //Release motor?
                 printf("Min window retraction reached! Current pos is zero!\n");
                 break;
             }
@@ -153,20 +153,7 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
 //Non-blocking
 void Motor::rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations)
 {
-    if (dir == MotorDriveDirection::Forward) {
-        for (uint16_t pos = 0; pos < m_numStepsPerFullRotation*numRotations; pos++) {
-            set_step(pos % m_numPhases);
-            vTaskDelay(pdMS_TO_TICKS(10));
-        }
-        vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
-    }
-    else {
-        for (uint16_t pos = m_numStepsPerFullRotation*numRotations; pos > 0; pos--) {
-            set_step(pos % m_numPhases);
-            vTaskDelay(pdMS_TO_TICKS(10));
-        }
-        vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
-    }
+    rotateNumSteps(dir, m_numStepsPerFullRotation*numRotations);
 }
 
 //Non-blocking (NEED TO VALIDATE DISTANCE ACCURACY)
