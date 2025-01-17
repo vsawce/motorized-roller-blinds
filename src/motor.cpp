@@ -123,22 +123,18 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
 void Motor::rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations)
 {
     if (dir == MotorDriveDirection::Forward) {
-        while(1) {
-            for (uint16_t pos = 0; pos < m_numStepsPerFullRotation*numRotations; pos++) {
-                set_step(pos % m_numPhases);
-                vTaskDelay(pdMS_TO_TICKS(10));
-            }
-            vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
+        for (uint16_t pos = 0; pos < m_numStepsPerFullRotation*numRotations; pos++) {
+            set_step(pos % m_numPhases);
+            vTaskDelay(pdMS_TO_TICKS(10));
         }
+        vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
     }
     else {
-        while(1) {
-            for (uint16_t pos = m_numStepsPerFullRotation*numRotations; pos > 0; pos--) {
-                set_step(pos % m_numPhases);
-                vTaskDelay(pdMS_TO_TICKS(10));
-            }
-            vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
+        for (uint16_t pos = m_numStepsPerFullRotation*numRotations; pos > 0; pos--) {
+            set_step(pos % m_numPhases);
+            vTaskDelay(pdMS_TO_TICKS(10));
         }
+        vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs
     }
 }
 
