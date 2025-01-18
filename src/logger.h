@@ -1,6 +1,7 @@
 #ifndef LOGGER_H //Prevent multiple definitions of same header
 #define LOGGER_H
 
+#include <stdarg.h> // For va_list, va_start, va_end
 #include <stdio.h>
 
 #include "pico/stdlib.h"
@@ -21,7 +22,7 @@ class Logger
     public:
         Logger();
         int init();
-        void send(const char *message);
+        void send(const char *format, ...);
         void receive();
 
     private:

@@ -12,8 +12,6 @@ uint32_t getUptimeCentiseconds(void)
 }
 
 
-
-
 //Logger class
 Logger::Logger() {}
 
@@ -30,13 +28,30 @@ int Logger::init()
     return 0;
 }
 
-void Logger::send(const char *message)
+void Logger::send(const char *format, ...)
 {
-    if (m_logQueue != NULL) {
-        if (xQueueSend(m_logQueue, message, pdMS_TO_TICKS(100)) != pdPASS) {
-            // Handle queue full (optional, TODO?)
-            //printf("Log queue full. Message dropped: %s\n", message); // Add this for debugging
-        }
+    if (m_logQueue == NULL) {
+        return; //Exit if not initialized
+    }
+
+     // Buffers for the timestamp and the formatted message
+    char fullMessage[LOG_MESSAGE_MAX_LENGTH];
+    char formattedMessage[LOG_MESSAGE_MAX_LENGTH - 11]; // Reserve space 11 spaces for timestamp? 10 digs for uint32_t, 1 for decimal 
+
+    uint32_t uptimeCentiseconds = getUptimeCentiseconds();
+
+    // Process variable arguments
+    va_list args;
+    va_start(args, format);
+    vsnprintf(formattedMessage, LOG_MESSAGE_MAX_LENGTH, format, args);
+    va_end(args);
+
+     // Prepend the timestamp to the log message
+    snprintf(fullMessage, sizeof(fullMessage), "[%u.%02u] %s", uptimeCentiseconds / 100, uptimeCentiseconds % 100, formattedMessage);
+
+    if (xQueueSend(m_logQueue, fullMessage, pdMS_TO_TICKS(100)) != pdPASS) {
+        // Handle queue full (optional, TODO?)
+        //printf("Log queue full. Message dropped: %s\n", message); // Add this for debugging
     }
 }
 
@@ -47,6 +62,6 @@ void Logger::receive()
     // Wait for a log message from the queue
     if (xQueueReceive(m_logQueue, logBuffer, portMAX_DELAY) == pdPASS) {
         // Send the log message over USB
-        printf("Log: %s\n", logBuffer);
+        printf("%s\n", logBuffer);
     }
 }
