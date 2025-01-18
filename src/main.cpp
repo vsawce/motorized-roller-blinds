@@ -93,7 +93,7 @@ void send_log(const char *message)
 ///////////////////
 
 #if USE_LED
-void blink_task(__unused void *params)
+void blink_task(void *params)
 {
     if (params == NULL) {
         send_log("Blink task: Invalid parameters");
