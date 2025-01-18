@@ -2,5 +2,5 @@
 
 int init_wifi_led()
 {
-    return wifi.init_wifi();
+    return wifi.init();
 }

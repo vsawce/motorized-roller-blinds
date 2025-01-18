@@ -7,7 +7,7 @@ Wifi::Wifi()
     //Empty for now...
 }
 
-int Wifi::init_wifi()
+int Wifi::init()
 {
     if (cyw43_arch_init()) {
         //printf("Failed to initialize the CYW43 architecture.\n");

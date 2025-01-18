@@ -7,7 +7,7 @@ class Wifi
 {
     public:
         Wifi();
-        int init_wifi();
+        int init(); //cyw43_arch_init
 
 };
 
