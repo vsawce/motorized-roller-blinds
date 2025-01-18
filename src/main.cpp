@@ -74,15 +74,15 @@
 QueueHandle_t logQueue;           // Global log queue
 
 // Thread-safe log sending function
-void send_log(const char *message)
-{
-    if (logQueue != NULL) {
-        if (xQueueSend(logQueue, message, pdMS_TO_TICKS(100)) != pdPASS) {
-            // Handle queue full (optional, TODO?)
-            //printf("Log queue full. Message dropped: %s\n", message); // Add this for debugging
-        }
-    }
-}
+// void send_log(const char *message)
+// {
+//     if (logQueue != NULL) {
+//         if (xQueueSend(logQueue, message, pdMS_TO_TICKS(100)) != pdPASS) {
+//             // Handle queue full (optional, TODO?)
+//             //printf("Log queue full. Message dropped: %s\n", message); // Add this for debugging
+//         }
+//     }
+// }
 
 
 //##################################//
@@ -96,7 +96,7 @@ void send_log(const char *message)
 void blink_task(void *params)
 {
     if (params == NULL) {
-        send_log("Blink task: Invalid parameters");
+        //send_log("Blink task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
@@ -104,7 +104,7 @@ void blink_task(void *params)
 
     while (true) {
         led_ptr->toggle();
-        send_log("Toggled");
+        //send_log("Toggled");
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 
@@ -134,7 +134,7 @@ struct MotorTaskParams
 void motor_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
-        send_log("Motor task: Invalid parameters");
+        //send_log("Motor task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
