@@ -1,6 +1,18 @@
 #include "logger.h"
 
+uint32_t getUptimeCentiseconds(void)
+{
+    //pico-sdk hardware timer
+    absolute_time_t current_time = get_absolute_time();
+    
+    //Div by 100 for centi
+    return to_us_since_boot(current_time) / 100;
+}
 
+
+
+
+//Logger class
 Logger::Logger() {}
 
 int Logger::init()
