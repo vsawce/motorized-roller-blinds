@@ -2,9 +2,7 @@
  *  Designed by Vincent Saw
  * 
  */
-
 #include <stdio.h>
-
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 #include "pico/cyw43_arch.h"
@@ -16,6 +14,7 @@
 #include "led.h"
 #include "init.h"
 #include "motor.h"
+#include "logger.h"
 
 //##################################//
 //          USER MACROS             //
@@ -40,19 +39,14 @@
 #define LED_DELAY_MS 1000
 
 // Priorities of our threads - higher numbers are higher priority
-#define USB_DEBUG_TASK_PRIORITY     ( tskIDLE_PRIORITY + 3UL )  //Highest
+#define LOGGER_TASK_PRIORITY        ( tskIDLE_PRIORITY + 3UL )  //Highest
 #define MOTOR_TASK_PRIORITY         ( tskIDLE_PRIORITY + 2UL )
 #define BLINK_TASK_PRIORITY         ( tskIDLE_PRIORITY + 1UL )  //Lowest
 
 // Stack sizes of our threads in words (4 bytes)
-#define USB_DEBUG_TASK_STACK_SIZE   ( configMINIMAL_STACK_SIZE + 128 )
+#define LOGGER_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE + 128 )
 #define MOTOR_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE + 64 )
 #define BLINK_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE )
-
-// Logging definitions
-#define LOG_QUEUE_SIZE 10           // Maximum number of messages in the queue
-#define LOG_MESSAGE_MAX_LENGTH 64   // Maximum length of each log message
-
 
 //##################################//
 //          ???????????             //
@@ -70,8 +64,6 @@
 //         return NULL;
 //     return &async_context_instance.core;
 // }
-
-QueueHandle_t logQueue;           // Global log queue
 
 // Thread-safe log sending function
 // void send_log(const char *message)
@@ -92,19 +84,30 @@ QueueHandle_t logQueue;           // Global log queue
 // BLINK TASK
 ///////////////////
 
+//Can remove typedef if in C++ do get similar typedef struct behavior from C
+
 #if USE_LED
-void blink_task(void *params)
+
+struct BlinkTaskParams
 {
-    if (params == NULL) {
+    Logger  *s_log_ptr;  // Pass the address of the Log object
+    LED     *s_led_ptr;  // Pass the address of the LED object
+};
+
+void blink_task(void *pvParameters)
+{
+    if (pvParameters == NULL) {
         //send_log("Blink task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
-    LED *led_ptr = static_cast<LED *>(params);
+    BlinkTaskParams *params = (BlinkTaskParams *)pvParameters;
+    Logger  *log_ptr = params->s_log_ptr;
+    LED     *led_ptr = params->s_led_ptr;
 
     while (true) {
         led_ptr->toggle();
-        //send_log("Toggled");
+        log_ptr->send("Toggled");
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 
@@ -159,19 +162,20 @@ void motor_task(void *pvParameters)
 }
 
 ///////////////////
-//  USB DEBUG TASK
+//  LOGGER TASK
 ///////////////////
 
-void usb_debug_task(__unused void *params)
+void logger_task(void *params)
 {
-    char logBuffer[LOG_MESSAGE_MAX_LENGTH];
+    if (params == NULL) {
+        //send_log("Blink task: Invalid parameters");
+        vTaskDelete(NULL);  // Delete this task if parameters are invalid
+    }
+
+    Logger *log = static_cast<Logger *>(params);
 
     while (true) {
-        // Wait for a log message from the queue
-        if (xQueueReceive(logQueue, logBuffer, portMAX_DELAY) == pdPASS) {
-            // Send the log message over USB
-            printf("USB Debug Log: %s\n", logBuffer);
-        }
+        log->receive();
     }
 }
 
@@ -181,29 +185,27 @@ void usb_debug_task(__unused void *params)
 //##################################//
 int main()
 {
+    Logger log;
     LED led;
 
     Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
     mtr.init();
     MotorDriveDirection mtrDrvDir = MotorDriveDirection::Forward;
 
-    stdio_init_all();
-    printf("System initializing...\n");
     printf("\"BLINDS::WINDOW_HEIGHT_MM\":%dmm\t\"getWindowHeightLimitSteps()\": %dsteps\n", BLINDS::WINDOW_HEIGHT_MM, mtr.getWindowHeightLimitSteps());
-    
+
+    if (init_logger(&log)) printf("Failed to initialize logger\n");
+    xTaskCreate(logger_task, "LoggerTask", LOGGER_TASK_STACK_SIZE, &log, LOGGER_TASK_PRIORITY, NULL);
+
 #if USE_LED
     //Init LED, if it fails then print
+    BlinkTaskParams btParams = {
+        .s_log_ptr = &log,                  // Pass the address of the Log object
+        .s_led_ptr = &led,                  // Pass the address of the LED object
+    };
     if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
-    xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &led, BLINK_TASK_PRIORITY, NULL);
+    xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &btParams, BLINK_TASK_PRIORITY, NULL);
 #endif
-
-    logQueue = xQueueCreate(LOG_QUEUE_SIZE, LOG_MESSAGE_MAX_LENGTH);
-    if (logQueue == NULL) {
-        printf("Failed to create log queue\n");
-        return 1;
-    }
-
-    xTaskCreate(usb_debug_task, "USBDebugTask", USB_DEBUG_TASK_STACK_SIZE, NULL, USB_DEBUG_TASK_PRIORITY, NULL);
 
     MotorTaskParams mtParams = {
         .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
