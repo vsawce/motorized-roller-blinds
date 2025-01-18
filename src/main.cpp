@@ -140,15 +140,20 @@ void motor_task(void *pvParameters)
 
     MotorTaskParams *params = (MotorTaskParams *)pvParameters;
     Motor *mtr_ptr = params->s_mtr_ptr;
-    MotorDriveDirection *motorDriveDir_ptr = params->s_motorDriveDir_ptr;
-
-    const uint8_t numPhases = mtr_ptr->getNumPhases();
-    const uint16_t numStepsPerFullRotation = mtr_ptr->getNumStepsPerFullRotation();
 
     while (true) {
-        //mtr_ptr->rotateNumFullRotations(*motorDriveDir_ptr, 3);
-        mtr_ptr->rotateLinearHeightMillimeters(*motorDriveDir_ptr, 79);
-        vTaskDelay(pdMS_TO_TICKS(2000)); //Wait for two secs between each operation
+        //Test code to rotate the shaft back and forth
+        mtr_ptr->rotateToPercent(0);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        mtr_ptr->rotateToPercent(50);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        mtr_ptr->rotateToPercent(100);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        mtr_ptr->rotateToPercent(50);
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 
 }

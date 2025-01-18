@@ -2,6 +2,8 @@
 
 constexpr uint16_t PI_TIMES_100 = 314; //Integer to skip FP math
 
+constexpr uint8_t MAX_PERCENT = 100; //Constant for rotateToPercent
+
 //  NORMAL DRIVE (more power, more torque)
 //  -----------
 //   Phase DCBA Val
@@ -155,9 +157,37 @@ void Motor::rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations
 }
 
 
+// 0 - 100% input
 void Motor::rotateToPercent(uint8_t percent)
 {
-    //TODO
+    //Check if percent value is in valid range (0-100)
+    if (percent > MAX_PERCENT) {
+        //printf("rotateToPercent input out of range! Value must be 0-100 inclusive")
+        return;
+    }
+
+    //Calculate targetStepPos step position based on percent and m_windowHeightLimitSteps
+    uint32_t targetStepPos = (m_windowHeightLimitSteps*percent)/MAX_PERCENT;
+
+    uint32_t stepsToMove;
+    MotorDriveDirection dirToMove;
+
+    //Calculate stepsToMove (difference b/t currentPos and targetPos) and direction to move
+    if(targetStepPos > m_currentStepPos) {
+        stepsToMove = targetStepPos - m_currentStepPos; //m_currentStepPos is smaller than targetStepPos
+        dirToMove = MotorDriveDirection::Forward;
+    }
+    else {
+        stepsToMove = m_currentStepPos - targetStepPos; //m_currentStepPos is larger than targetStepPos
+        dirToMove = MotorDriveDirection::Reverse;
+    }
+
+    //printf("Moving to targetStepPos=%u. m_currentStepPos=%u\n", targetStepPos, m_currentStepPos);
+
+    //Enact rotateNumSteps motor driving
+    rotateNumSteps(dirToMove, stepsToMove);
+
+    //printf("Done. m_currentStepPos=%u\n", m_currentStepPos);
 }
 
 //NEED TO VALIDATE DISTANCE ACCURACY
