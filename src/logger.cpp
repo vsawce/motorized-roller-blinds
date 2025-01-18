@@ -1,13 +1,14 @@
 #include "logger.h"
 
-constexpr uint8_t CENTISECONDS_IN_ONE_SECOND = 100;
+constexpr uint16_t  MICROSECONDS_IN_ONE_CENTISECOND = 10000;
+constexpr uint8_t   CENTISECONDS_IN_ONE_SECOND      = 100;
 
 uint32_t getUptimeCentiseconds(void)
 {
     //pico-sdk hardware timer
     absolute_time_t current_time = get_absolute_time();
     
-    return to_us_since_boot(current_time) / CENTISECONDS_IN_ONE_SECOND;
+    return to_us_since_boot(current_time) / MICROSECONDS_IN_ONE_CENTISECOND;
 }
 
 
