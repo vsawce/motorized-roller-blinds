@@ -21,7 +21,7 @@ class Wifi
         Wifi();
         int init(); //cyw43_arch_init
         void enableStationMode();
-        void connectToWifi(const char *ssid, const char *pw, uint32_t authMethod, uint32_t timeout);
+        int connectToWifi(const char *ssid, const char *pw, uint32_t authMethod, uint32_t timeout);
 
 };
 
