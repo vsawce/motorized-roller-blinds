@@ -3,6 +3,14 @@
 
 #include "pico/cyw43_arch.h"
 
+#include "pico/stdlib.h"
+
+#include "lwip/ip4_addr.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "ping.h"
+
 class Wifi
 {
     public:
