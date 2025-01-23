@@ -4,6 +4,15 @@
 #include "pico/stdlib.h"
 
 //////////////////////////
+//  CYW43 PARAMETERS    //
+//////////////////////////
+
+namespace CYW43
+{
+    constexpr int WIFI_TIMEOUT_MS = 30000; //30s timeout
+}
+
+//////////////////////////
 //  BLIND PARAMETERS    //
 /////////////////////////
 

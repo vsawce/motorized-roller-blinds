@@ -32,19 +32,21 @@
 
 // Whether to busy wait in the led thread
 #ifndef LED_BUSY_WAIT
-#define LED_BUSY_WAIT 1
+#define LED_BUSY_WAIT 0
 #endif
 
 // Delay between led blinking
 #define LED_DELAY_MS 1000
 
 // Priorities of our threads - higher numbers are higher priority
-#define LOGGER_TASK_PRIORITY        ( tskIDLE_PRIORITY + 3UL )  //Highest
+#define LOGGER_TASK_PRIORITY        ( tskIDLE_PRIORITY + 4UL )  //Highest
+#define WIFI_TASK_PRIORITY         ( tskIDLE_PRIORITY + 3UL )
 #define MOTOR_TASK_PRIORITY         ( tskIDLE_PRIORITY + 2UL )
 #define BLINK_TASK_PRIORITY         ( tskIDLE_PRIORITY + 1UL )  //Lowest
 
 // Stack sizes of our threads in words (4 bytes)
 #define LOGGER_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE + 128 )
+#define WIFI_TASK_STACK_SIZE        ( configMINIMAL_STACK_SIZE + 512 )
 #define MOTOR_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE + 64 )
 #define BLINK_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE )
 
@@ -81,6 +83,48 @@
 //              TASKS               //
 //##################################//
 ///////////////////
+// WIFI TASK
+///////////////////
+//Can remove typedef if in C++ do get similar typedef struct behavior from C
+struct WifiTaskParams
+{
+    Logger  *s_log_ptr;     // Pass the address of the Log object
+    Wifi    *s_wifi_ptr;    // Pointer to the LED object
+};
+
+void wifi_task(void *pvParameters)
+{
+    if (pvParameters == NULL) {
+        //send_log("Motor task: Invalid parameters");
+        vTaskDelete(NULL);  // Delete this task if parameters are invalid
+    }
+
+    WifiTaskParams *params = (WifiTaskParams *)pvParameters;
+    Logger  *log_ptr    = params->s_log_ptr;
+    Wifi    *wifi_ptr   = params->s_wifi_ptr;
+
+    log_ptr->send("Initializing wifi...\n");
+    if (cyw43_arch_init()) {
+        log_ptr->send("Failed to init CYW43 Wifi & LED\n");
+    }
+
+    log_ptr->send("Enabling WiFi station mode...\n");
+    wifi_ptr->enableStationMode();
+    
+    log_ptr->send("Connecting to wifi SSID  ...\n");
+    if (wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS)) {
+        log_ptr->send("Failed to connect to wifi SSID  . Timeout: \n");
+    }
+    else {
+        log_ptr->send("Connected to wifi SSID  !\n");
+    }
+
+    // while (true) {
+        
+    // }
+}
+
+///////////////////
 // BLINK TASK
 ///////////////////
 
@@ -111,15 +155,15 @@ void blink_task(void *pvParameters)
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 
-#if LED_BUSY_WAIT
-        // You shouldn't usually do this. We're just keeping the thread busy,
-        // experiment with BLINK_TASK_PRIORITY and LED_BUSY_WAIT to see what happens
-        // if BLINK_TASK_PRIORITY is higher than TEST_TASK_PRIORITY main_task won't get any free time to run
-        // unless configNUMBER_OF_CORES > 1
-        busy_wait_ms(LED_DELAY_MS);
-#else
-        sleep_ms(LED_DELAY_MS);
-#endif
+// #if LED_BUSY_WAIT
+//         // You shouldn't usually do this. We're just keeping the thread busy,
+//         // experiment with BLINK_TASK_PRIORITY and LED_BUSY_WAIT to see what happens
+//         // if BLINK_TASK_PRIORITY is higher than TEST_TASK_PRIORITY main_task won't get any free time to run
+//         // unless configNUMBER_OF_CORES > 1
+//         busy_wait_ms(LED_DELAY_MS);
+// #else
+//         sleep_ms(LED_DELAY_MS);
+// #endif
 }
 #endif // USE_LED
 
@@ -187,6 +231,7 @@ int main()
 {
     Logger log;
     LED led;
+    Wifi wifi;
 
     Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
     mtr.init();
@@ -196,6 +241,17 @@ int main()
 
     if (init_logger(&log)) printf("Failed to initialize logger\n");
     xTaskCreate(logger_task, "LoggerTask", LOGGER_TASK_STACK_SIZE, &log, LOGGER_TASK_PRIORITY, NULL);
+    
+    WifiTaskParams wifiParams = {
+        .s_log_ptr  = &log,                  // Pass the address of the Log object
+        .s_wifi_ptr = &wifi,                  // Pass the address of the LED object
+    };
+    // Create the Wi-Fi task on Core 0
+    TaskHandle_t wifi_task_handle;
+    xTaskCreate(wifi_task, "WifiTask", WIFI_TASK_STACK_SIZE, &wifiParams, WIFI_TASK_PRIORITY, &wifi_task_handle);
+
+    // Set the task to run on Core 1
+    //vTaskCoreAffinitySet(wifi_task_handle, 1);  // Bind the Wi-Fi task to Core 1
 
 #if USE_LED
     //Init LED, if it fails then print
@@ -203,7 +259,7 @@ int main()
         .s_log_ptr = &log,                  // Pass the address of the Log object
         .s_led_ptr = &led,                  // Pass the address of the LED object
     };
-    if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
+    //if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
     xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &btParams, BLINK_TASK_PRIORITY, NULL);
 #endif
 

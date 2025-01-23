@@ -11,6 +11,7 @@ add_executable(${TARGET_NAME}
     ${PICO_LWIP_CONTRIB_PATH}/apps/ping/ping.c #pico-sdk ping
     )
 target_compile_definitions(main PRIVATE #SYS mode, multithreaded
+    #configNUMBER_OF_CORES=1
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
     NO_SYS=0            # don't want NO_SYS (generally this would be in your lwipopts.h)
