@@ -11,6 +11,10 @@
 #include "task.h"
 #include "ping.h"
 
+#ifndef PING_ADDR
+#define PING_ADDR "8.8.8.8" //Ping google
+#endif
+
 class Wifi
 {
     public:
