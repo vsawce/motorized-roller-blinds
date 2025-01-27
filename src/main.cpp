@@ -177,8 +177,8 @@ void blink_task(void *pvParameters)
 //Can remove typedef if in C++ do get similar typedef struct behavior from C
 struct MotorTaskParams
 {
+    Logger  *s_log_ptr;  // Pass the address of the Log object
     Motor *s_mtr_ptr;         // Pointer to the LED object
-    MotorDriveDirection *s_motorDriveDir_ptr; // Pointer to the blink delay value
 };
 
 void motor_task(void *pvParameters)
@@ -189,6 +189,7 @@ void motor_task(void *pvParameters)
     }
 
     MotorTaskParams *params = (MotorTaskParams *)pvParameters;
+    Logger  *log_ptr = params->s_log_ptr;
     Motor *mtr_ptr = params->s_mtr_ptr;
 
     while (true) {
@@ -267,8 +268,8 @@ int main()
 #endif
 
     MotorTaskParams mtParams = {
+        .s_log_ptr = &log,                  // Pass the address of the Log object
         .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
-        .s_motorDriveDir_ptr = &mtrDrvDir   // Pass the address of the motor drive direction variable
     };
 
     xTaskCreate(motor_task, "MotorTask", MOTOR_TASK_STACK_SIZE, &mtParams, MOTOR_TASK_PRIORITY, NULL);
