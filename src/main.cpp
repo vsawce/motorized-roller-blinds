@@ -82,53 +82,6 @@
 //##################################//
 //              TASKS               //
 //##################################//
-///////////////////
-// WIFI TASK
-///////////////////
-//Can remove typedef if in C++ do get similar typedef struct behavior from C
-struct WifiTaskParams
-{
-    Logger  *s_log_ptr;     // Pass the address of the Log object
-    Wifi    *s_wifi_ptr;    // Pointer to the LED object
-};
-
-void wifi_task(void *pvParameters)
-{
-    if (pvParameters == NULL) {
-        //send_log("Motor task: Invalid parameters");
-        vTaskDelete(NULL);  // Delete this task if parameters are invalid
-    }
-
-    WifiTaskParams *params = (WifiTaskParams *)pvParameters;
-
-    Logger  *log_ptr    = params->s_log_ptr;
-    log_ptr->send("wifi_task started\n");
-
-    Wifi    *wifi_ptr   = params->s_wifi_ptr;
-
-    log_ptr->send("Initializing wifi...\n");
-    if (cyw43_arch_init()) {
-        log_ptr->send("Failed to init CYW43 Wifi & LED\n");
-    }
-
-    log_ptr->send("Enabling WiFi station mode...\n");
-    wifi_ptr->enableStationMode();
-    
-    log_ptr->send("Connecting to wifi SSID %s ...\n", WIFI_SSID);
-    if (wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS)) {
-        log_ptr->send("Failed to connect to wifi SSID %s . Timeout: \n", WIFI_SSID);
-    }
-    else {
-        log_ptr->send("Connected to wifi SSID %s !\n", WIFI_SSID);
-    }
-
-    while(true) {
-        // not much to do as LED is in another task, and we're using RAW (callback) lwIP API
-        vTaskDelay(100);
-    }
-
-    cyw43_arch_deinit();
-}
 
 ///////////////////
 // BLINK TASK
@@ -237,6 +190,77 @@ void logger_task(void *params)
     }
 }
 
+///////////////////
+// WIFI TASK
+///////////////////
+//Can remove typedef if in C++ do get similar typedef struct behavior from C
+struct WifiTaskParams
+{
+    Logger  *s_log_ptr;     // Pass the address of the Log object
+    Wifi    *s_wifi_ptr;    // Pointer to the LED object
+};
+
+void wifi_task(void *pvParameters)
+{
+    if (pvParameters == NULL) {
+        //send_log("Motor task: Invalid parameters");
+        vTaskDelete(NULL);  // Delete this task if parameters are invalid
+    }
+
+    LED led;
+    Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
+    mtr.init();
+
+    //printf("\"BLINDS::WINDOW_HEIGHT_MM\":%dmm\t\"getWindowHeightLimitSteps()\": %dsteps\n", BLINDS::WINDOW_HEIGHT_MM, mtr.getWindowHeightLimitSteps());
+
+    WifiTaskParams *params = (WifiTaskParams *)pvParameters;
+
+    Logger  *log_ptr    = params->s_log_ptr;
+    log_ptr->send("wifi_task started\n");
+
+    Wifi    *wifi_ptr   = params->s_wifi_ptr;
+
+    log_ptr->send("Initializing wifi...\n");
+    if (cyw43_arch_init()) {
+        log_ptr->send("Failed to init CYW43 Wifi & LED\n");
+    }
+
+    log_ptr->send("Enabling WiFi station mode...\n");
+    wifi_ptr->enableStationMode();
+    
+    log_ptr->send("Connecting to wifi SSID %s ...\n", WIFI_SSID);
+    if (wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS)) {
+        log_ptr->send("Failed to connect to wifi SSID %s . Timeout: \n", WIFI_SSID);
+    }
+    else {
+        log_ptr->send("Connected to wifi SSID %s !\n", WIFI_SSID);
+    }
+
+#if USE_LED
+    //Init LED, if it fails then print
+    BlinkTaskParams btParams = {
+        .s_log_ptr = log_ptr,                  // Pass the address of the Log object
+        .s_led_ptr = &led,                  // Pass the address of the LED object
+    };
+    //if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
+    xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &btParams, BLINK_TASK_PRIORITY, NULL);
+#endif
+
+    MotorTaskParams mtParams = {
+        .s_log_ptr = log_ptr,                  // Pass the address of the Log object
+        .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
+    };
+
+    xTaskCreate(motor_task, "MotorTask", MOTOR_TASK_STACK_SIZE, &mtParams, MOTOR_TASK_PRIORITY, NULL);
+
+    while(true) {
+        // not much to do as LED is in another task, and we're using RAW (callback) lwIP API
+        vTaskDelay(100);
+    }
+
+    cyw43_arch_deinit();
+}
+
 
 //##################################//
 //              MAIN                //
@@ -244,13 +268,8 @@ void logger_task(void *params)
 int main()
 {
     Logger log;
-    LED led;
+
     Wifi wifi;
-
-    Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
-    mtr.init();
-
-    printf("\"BLINDS::WINDOW_HEIGHT_MM\":%dmm\t\"getWindowHeightLimitSteps()\": %dsteps\n", BLINDS::WINDOW_HEIGHT_MM, mtr.getWindowHeightLimitSteps());
 
     if (init_logger(&log)) printf("Failed to initialize logger\n");
     xTaskCreate(logger_task, "LoggerTask", LOGGER_TASK_STACK_SIZE, &log, LOGGER_TASK_PRIORITY, NULL);
@@ -264,24 +283,7 @@ int main()
     xTaskCreate(wifi_task, "WifiTask", WIFI_TASK_STACK_SIZE, &wifiParams, WIFI_TASK_PRIORITY, &wifi_task_handle);
 
     // Set the task to run on Core 1
-    //vTaskCoreAffinitySet(wifi_task_handle, 1);  // Bind the Wi-Fi task to Core 1
-
-#if USE_LED
-    //Init LED, if it fails then print
-    BlinkTaskParams btParams = {
-        .s_log_ptr = &log,                  // Pass the address of the Log object
-        .s_led_ptr = &led,                  // Pass the address of the LED object
-    };
-    //if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
-    xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &btParams, BLINK_TASK_PRIORITY, NULL);
-#endif
-
-    MotorTaskParams mtParams = {
-        .s_log_ptr = &log,                  // Pass the address of the Log object
-        .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
-    };
-
-    xTaskCreate(motor_task, "MotorTask", MOTOR_TASK_STACK_SIZE, &mtParams, MOTOR_TASK_PRIORITY, NULL);
+    // vTaskCoreAffinitySet(wifi_task_handle, 1);  // Bind the Wi-Fi task to Core 1
 
     // Start the scheduler
     vTaskStartScheduler();
