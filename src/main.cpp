@@ -107,7 +107,7 @@ void blink_task(void *pvParameters)
     BlinkTaskParams *params = (BlinkTaskParams *)pvParameters;
 
     Logger  *log_ptr = params->s_log_ptr;
-    log_ptr->send("blink_task started\n");
+    log_ptr->send("blink_task started on core %d\n", portGET_CORE_ID());
 
     LED     *led_ptr = params->s_led_ptr;
 
@@ -150,7 +150,7 @@ void motor_task(void *pvParameters)
     MotorTaskParams *params = (MotorTaskParams *)pvParameters;
 
     Logger  *log_ptr = params->s_log_ptr;
-    log_ptr->send("motor_task started\n");
+    log_ptr->send("motor_task started on core %d\n", portGET_CORE_ID());
 
     Motor *mtr_ptr = params->s_mtr_ptr;
 
@@ -183,7 +183,7 @@ void logger_task(void *params)
     }
 
     Logger *log_ptr = static_cast<Logger *>(params);
-    log_ptr->send("logger_task started\n");
+    log_ptr->send("logger_task started on core %d\n", portGET_CORE_ID());
 
     while (true) {
         log_ptr->receive();
@@ -216,7 +216,7 @@ void wifi_task(void *pvParameters)
     WifiTaskParams *params = (WifiTaskParams *)pvParameters;
 
     Logger  *log_ptr    = params->s_log_ptr;
-    log_ptr->send("wifi_task started\n");
+    log_ptr->send("wifi_task started on core %d\n", portGET_CORE_ID());
 
     Wifi    *wifi_ptr   = params->s_wifi_ptr;
 
