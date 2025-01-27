@@ -236,6 +236,12 @@ void wifi_task(void *pvParameters)
         log_ptr->send("Connected to wifi SSID %s !\n", WIFI_SSID);
     }
 
+    vTaskDelay(1000);
+
+    TaskHandle_t logger_task_handle;
+    xTaskCreate(logger_task, "LoggerTask", LOGGER_TASK_STACK_SIZE, log_ptr, LOGGER_TASK_PRIORITY, &logger_task_handle);
+    vTaskCoreAffinitySet(logger_task_handle, 0x1); //Set logger_task to 1st core
+
 #if USE_LED
     //Init LED, if it fails then print
     BlinkTaskParams btParams = {
@@ -243,15 +249,18 @@ void wifi_task(void *pvParameters)
         .s_led_ptr = &led,                  // Pass the address of the LED object
     };
     //if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
-    xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &btParams, BLINK_TASK_PRIORITY, NULL);
+    TaskHandle_t blink_task_handle;
+    xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &btParams, BLINK_TASK_PRIORITY, &blink_task_handle);
+    vTaskCoreAffinitySet(blink_task_handle, 0x2); //Set blink_task to 2nd core
 #endif
 
     MotorTaskParams mtParams = {
         .s_log_ptr = log_ptr,                  // Pass the address of the Log object
         .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
     };
-
-    xTaskCreate(motor_task, "MotorTask", MOTOR_TASK_STACK_SIZE, &mtParams, MOTOR_TASK_PRIORITY, NULL);
+    TaskHandle_t motor_task_handle;
+    xTaskCreate(motor_task, "MotorTask", MOTOR_TASK_STACK_SIZE, &mtParams, MOTOR_TASK_PRIORITY, &motor_task_handle);
+    vTaskCoreAffinitySet(motor_task_handle, 0x2); //Set motor_task to 2nd core
 
     while(true) {
         // not much to do as LED is in another task, and we're using RAW (callback) lwIP API
@@ -272,8 +281,7 @@ int main()
     Wifi wifi;
 
     if (init_logger(&log)) printf("Failed to initialize logger\n");
-    xTaskCreate(logger_task, "LoggerTask", LOGGER_TASK_STACK_SIZE, &log, LOGGER_TASK_PRIORITY, NULL);
-    
+
     WifiTaskParams wifiParams = {
         .s_log_ptr  = &log,                  // Pass the address of the Log object
         .s_wifi_ptr = &wifi,                  // Pass the address of the LED object
@@ -283,7 +291,7 @@ int main()
     xTaskCreate(wifi_task, "WifiTask", WIFI_TASK_STACK_SIZE, &wifiParams, WIFI_TASK_PRIORITY, &wifi_task_handle);
 
     // Set the task to run on Core 1
-    // vTaskCoreAffinitySet(wifi_task_handle, 1);  // Bind the Wi-Fi task to Core 1
+    // vTaskCoreAffinitySet(wifi_task_handle, 0x1);  // Bind the Wi-Fi task to 2nd core
 
     // Start the scheduler
     vTaskStartScheduler();
