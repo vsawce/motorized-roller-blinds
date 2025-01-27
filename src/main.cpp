@@ -100,7 +100,10 @@ void wifi_task(void *pvParameters)
     }
 
     WifiTaskParams *params = (WifiTaskParams *)pvParameters;
+
     Logger  *log_ptr    = params->s_log_ptr;
+    log_ptr->send("wifi_task started\n");
+
     Wifi    *wifi_ptr   = params->s_wifi_ptr;
 
     log_ptr->send("Initializing wifi...\n");
@@ -149,7 +152,10 @@ void blink_task(void *pvParameters)
     }
 
     BlinkTaskParams *params = (BlinkTaskParams *)pvParameters;
+
     Logger  *log_ptr = params->s_log_ptr;
+    log_ptr->send("blink_task started\n");
+
     LED     *led_ptr = params->s_led_ptr;
 
     while (true) {
@@ -189,7 +195,10 @@ void motor_task(void *pvParameters)
     }
 
     MotorTaskParams *params = (MotorTaskParams *)pvParameters;
+
     Logger  *log_ptr = params->s_log_ptr;
+    log_ptr->send("motor_task started\n");
+
     Motor *mtr_ptr = params->s_mtr_ptr;
 
     while (true) {
@@ -220,10 +229,11 @@ void logger_task(void *params)
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
-    Logger *log = static_cast<Logger *>(params);
+    Logger *log_ptr = static_cast<Logger *>(params);
+    log_ptr->send("logger_task started\n");
 
     while (true) {
-        log->receive();
+        log_ptr->receive();
     }
 }
 
