@@ -4,7 +4,7 @@
  */
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "pico/multicore.h"
+//#include "pico/multicore.h"
 #include "pico/cyw43_arch.h"
 
 #include "FreeRTOS.h"
@@ -54,7 +54,7 @@
 //          ???????????             //
 //##################################//
 
-#include "pico/async_context_freertos.h"
+// #include "pico/async_context_freertos.h"
 // static async_context_freertos_t async_context_instance;
 
 // // Create an async context
@@ -111,17 +111,20 @@ void wifi_task(void *pvParameters)
     log_ptr->send("Enabling WiFi station mode...\n");
     wifi_ptr->enableStationMode();
     
-    log_ptr->send("Connecting to wifi SSID  ...\n");
+    log_ptr->send("Connecting to wifi SSID %s ...\n", WIFI_SSID);
     if (wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS)) {
-        log_ptr->send("Failed to connect to wifi SSID  . Timeout: \n");
+        log_ptr->send("Failed to connect to wifi SSID %s . Timeout: \n", WIFI_SSID);
     }
     else {
-        log_ptr->send("Connected to wifi SSID  !\n");
+        log_ptr->send("Connected to wifi SSID %s !\n", WIFI_SSID);
     }
 
-    // while (true) {
-        
-    // }
+    while(true) {
+        // not much to do as LED is in another task, and we're using RAW (callback) lwIP API
+        vTaskDelay(100);
+    }
+
+    cyw43_arch_deinit();
 }
 
 ///////////////////

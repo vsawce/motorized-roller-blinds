@@ -14,9 +14,9 @@ target_compile_definitions(main PRIVATE #SYS mode, multithreaded
     #configNUMBER_OF_CORES=1
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
-    NO_SYS=0            # don't want NO_SYS (generally this would be in your lwipopts.h)
-    LWIP_SOCKET=1       # we need the socket API (generally this would be in your lwipopts.h)
-    PING_USE_SOCKETS=1
+    #NO_SYS=0            # don't want NO_SYS (generally this would be in your lwipopts.h)
+    #LWIP_SOCKET=1       # we need the socket API (generally this would be in your lwipopts.h)
+    #PING_USE_SOCKETS=1
     )
 target_include_directories(${TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/..
@@ -24,9 +24,11 @@ target_include_directories(${TARGET_NAME} PRIVATE
     ${PICO_LWIP_CONTRIB_PATH}/apps/ping/
     )
 target_link_libraries(${TARGET_NAME} PRIVATE
-    FreeRTOS-Kernel-Heap4
+    #pico_cyw43_arch_lwip_sys_freertos
+    pico_cyw43_arch_lwip_threadsafe_background
     pico_stdlib
-    pico_cyw43_arch_lwip_sys_freertos
+    # pico_lwip_iperf
+    FreeRTOS-Kernel-Heap4 # FreeRTOS kernel and dynamic heap
     )
 
 get_target_property(INCLUDE_DIRS ${TARGET_NAME} INCLUDE_DIRECTORIES)
