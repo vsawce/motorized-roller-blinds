@@ -236,6 +236,8 @@ void wifi_task(void *pvParameters)
         log_ptr->send("Connected to wifi SSID %s !\n", WIFI_SSID);
     }
 
+    log_ptr->send("Assigned IP is: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
+
     vTaskDelay(1000);
 
     TaskHandle_t logger_task_handle;
