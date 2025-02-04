@@ -7,8 +7,21 @@
 //#include "pico/multicore.h"
 #include "pico/cyw43_arch.h"
 
+#include "lwip/ip4_addr.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
+
+// Inclusion of C program
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "ping.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #include "definitions.h"
 #include "led.h"
@@ -37,6 +50,11 @@
 
 // Delay between led blinking
 #define LED_DELAY_MS 1000
+
+// Ping google
+#ifndef PING_ADDR
+#define PING_ADDR "8.8.8.8"
+#endif
 
 // Priorities of our threads - higher numbers are higher priority
 #define LOGGER_TASK_PRIORITY        ( tskIDLE_PRIORITY + 4UL )  //Highest
@@ -264,6 +282,13 @@ void wifi_task(void *pvParameters)
     xTaskCreate(motor_task, "MotorTask", MOTOR_TASK_STACK_SIZE, &mtParams, MOTOR_TASK_PRIORITY, &motor_task_handle);
     vTaskCoreAffinitySet(motor_task_handle, 0x2); //Set motor_task to 2nd core
 
+    
+    log_ptr->send("Pinging %s\n", PING_ADDR);
+    ip_addr_t ping_addr;
+    ipaddr_aton(PING_ADDR, &ping_addr);
+    ping_init(&ping_addr);
+    
+    
     while(true) {
         // not much to do as LED is in another task, and we're using RAW (callback) lwIP API
         vTaskDelay(100);
