@@ -17,6 +17,8 @@ target_compile_definitions(${TARGET_NAME} PRIVATE #SYS mode, multithreaded
     NO_SYS=0            # don't want NO_SYS (generally this would be in your lwipopts.h)
     LWIP_SOCKET=1       # we need the socket API (generally this would be in your lwipopts.h)
     PING_USE_SOCKETS=1
+    # LWIP_DEBUG=1
+    # PING_DEBUG=LWIP_DBG_ON
     )
 target_include_directories(${TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
