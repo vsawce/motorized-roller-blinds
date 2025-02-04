@@ -19,6 +19,7 @@ target_compile_definitions(${TARGET_NAME} PRIVATE #SYS mode, multithreaded
     PING_USE_SOCKETS=1
     )
 target_include_directories(${TARGET_NAME} PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/..
     ${CMAKE_SOURCE_DIR}/drivers/
     ${PICO_LWIP_CONTRIB_PATH}/apps/ping/
