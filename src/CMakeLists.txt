@@ -10,7 +10,7 @@ add_executable(${TARGET_NAME}
     ${SOURCES}
     ${PICO_LWIP_CONTRIB_PATH}/apps/ping/ping.c #pico-sdk ping
     )
-target_compile_definitions(main PRIVATE #SYS mode, multithreaded
+target_compile_definitions(${TARGET_NAME} PRIVATE #SYS mode, multithreaded
     #configNUMBER_OF_CORES=1
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
@@ -27,7 +27,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE
     pico_cyw43_arch_lwip_sys_freertos
     # pico_cyw43_arch_lwip_threadsafe_background
     pico_stdlib
-    # pico_lwip_iperf
+    pico_lwip_iperf
     FreeRTOS-Kernel-Heap4 # FreeRTOS kernel and dynamic heap
     )
 
