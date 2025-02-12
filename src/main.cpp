@@ -29,6 +29,7 @@ extern "C" {
 #include "init.h"
 #include "motor.h"
 #include "logger.h"
+#include "button.h"
 
 //##################################//
 //          USER MACROS             //
