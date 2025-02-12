@@ -6,6 +6,7 @@
 #include "pico/stdlib.h"
 //#include "pico/multicore.h"
 #include "pico/cyw43_arch.h"
+#include "hardware/watchdog.h"
 
 #include "lwip/ip4_addr.h"
 
@@ -49,7 +50,9 @@ extern "C" {
 #endif
 
 // Delay between led blinking
-#define LED_DELAY_MS 1000
+#define LED_DELAY_MS    1000
+// Watchdog timer duration
+#define WDT_DURATION_MS 5000
 
 // Ping google
 #ifndef PING_ADDR
@@ -229,6 +232,14 @@ void wifi_task(void *pvParameters)
     Motor mtr(PIN::ULN2003_IN1, PIN::ULN2003_IN2, PIN::ULN2003_IN3, PIN::ULN2003_IN4, MotorDriveMode::NormalDrive);
     mtr.init();
 
+    if (watchdog_caused_reboot()) {
+        printf("Rebooted by Watchdog?\n");
+    } else {
+        printf("Clean boot\n");
+    }
+
+    watchdog_enable(WDT_DURATION_MS, 1); //If WDT not updated for WDT_DURATION_MS ms, reset. 2nd arg = 1 = pause during debug
+
     //printf("\"BLINDS::WINDOW_HEIGHT_MM\":%dmm\t\"getWindowHeightLimitSteps()\": %dsteps\n", BLINDS::WINDOW_HEIGHT_MM, mtr.getWindowHeightLimitSteps());
 
     WifiTaskParams *params = (WifiTaskParams *)pvParameters;
@@ -243,8 +254,12 @@ void wifi_task(void *pvParameters)
         log_ptr->send("Failed to init CYW43 Wifi & LED\n");
     }
 
+    watchdog_update(); //Update WDT
+
     log_ptr->send("Enabling WiFi station mode...\n");
     wifi_ptr->enableStationMode();
+
+    watchdog_update(); //Update WDT
     
     log_ptr->send("Connecting to wifi SSID %s ...\n", WIFI_SSID);
     if (wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS)) {
@@ -255,6 +270,10 @@ void wifi_task(void *pvParameters)
     }
 
     log_ptr->send("Assigned IP is: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
+
+    watchdog_update(); //Update WDT
+
+    watchdog_disable(); //Stop WDT as problematic section is in wifi
 
     vTaskDelay(1000);
 
