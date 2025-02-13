@@ -31,3 +31,21 @@ uint8_t Button::readButtonCalib()
 {
     return read(PIN::BUTTON_CALIB);
 }
+
+void    Button::update(Motor *m)
+{
+    MotorCommandMessage cmd;
+    //Active low
+    if (!readButtonUp()) {
+        cmd.mc = MotorCommand::ROTATE_TO_PERCENT;   //TEST CODE. TODO: IMPLEMENT BUTTON ACTION
+        cmd.pos = 50;                               //TEST CODE. TODO: IMPLEMENT BUTTON ACTION
+        xQueueSend(m->getCommandQueue(), &cmd, pdMS_TO_TICKS(CMD_TIMEOUT_MS));
+    }
+    if (!readButtonDown()) {
+        cmd.mc = MotorCommand::ROTATE_TO_PERCENT;   //TEST CODE. TODO: IMPLEMENT BUTTON ACTION
+        cmd.pos = 100;                              //TEST CODE. TODO: IMPLEMENT BUTTON ACTION
+        xQueueSend(m->getCommandQueue(), &cmd, pdMS_TO_TICKS(CMD_TIMEOUT_MS));
+    }
+
+    // vTaskDelay(pdMS_TO_TICKS(10)); //10ms delay
+}

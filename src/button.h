@@ -4,6 +4,7 @@
 #include "pico/stdlib.h"
 
 #include "definitions.h"
+#include "motor.h"
 
 class Button
 {
@@ -13,6 +14,7 @@ class Button
         uint8_t readButtonUp();     //Active low
         uint8_t readButtonDown();   //Active low
         uint8_t readButtonCalib();  //Active low
+        void update(Motor *m);
 
 
     // private: //m_ naming convention for private member variables

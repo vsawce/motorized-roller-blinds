@@ -176,19 +176,27 @@ void motor_task(void *pvParameters)
 
     Motor *mtr_ptr = params->s_mtr_ptr;
 
+    Button b;
+
+    b.init();
+
     while (true) {
-        //Test code to rotate the shaft back and forth
-        mtr_ptr->rotateToPercent(0);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        // Test code to rotate the shaft back and forth
+        // mtr_ptr->rotateToPercent(0);
+        // vTaskDelay(pdMS_TO_TICKS(1000));
 
-        mtr_ptr->rotateToPercent(50);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        // mtr_ptr->rotateToPercent(50);
+        // vTaskDelay(pdMS_TO_TICKS(1000));
 
-        mtr_ptr->rotateToPercent(100);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        // mtr_ptr->rotateToPercent(100);
+        // vTaskDelay(pdMS_TO_TICKS(1000));
 
-        mtr_ptr->rotateToPercent(50);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        // mtr_ptr->rotateToPercent(50);
+        // vTaskDelay(pdMS_TO_TICKS(1000));
+        b.update(mtr_ptr);
+        mtr_ptr->processCommands();
+
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 
 }

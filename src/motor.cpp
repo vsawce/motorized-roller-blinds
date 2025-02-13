@@ -102,12 +102,36 @@ uint32_t Motor::getWindowHeightLimitSteps()
     return m_windowHeightLimitSteps;
 }
 
+QueueHandle_t Motor::getCommandQueue()
+{
+    return m_commandQueue;
+}
+
 void Motor::init()
 {
     for (uint8_t i = 0; i < NUM_PINS; i++) //4 GPIO
     {
         gpio_init(pinIn[i]);
         gpio_set_dir(pinIn[i], GPIO_OUT);
+    }
+
+    m_commandQueue = xQueueCreate(CMD_QUEUE_SIZE, sizeof(MotorCommandMessage));
+    if (m_commandQueue == NULL) {
+        // printf("Failed to create cmd queue\n");
+        return;
+    }
+}
+
+void Motor::processCommands()
+{
+    MotorCommandMessage cmd;
+
+    while (xQueueReceive(m_commandQueue, &cmd, 0) == pdTRUE) {
+        switch (cmd.mc) {
+            case MotorCommand::ROTATE_TO_PERCENT:
+                rotateToPercent(cmd.pos);
+                break;
+        }
     }
 }
 

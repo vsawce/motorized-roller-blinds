@@ -8,8 +8,13 @@
 //RTOS task
 #include "FreeRTOS.h"
 #include "task.h" 
+#include "queue.h"
 
 #include "definitions.h"
+
+// Logging definitions
+#define CMD_QUEUE_SIZE 5           // Maximum number of messages in the queue
+#define CMD_TIMEOUT_MS 100
 
 enum class MotorDriveMode {
     WaveDrive,
@@ -22,6 +27,19 @@ enum class MotorDriveDirection {
     Reverse
 };
 
+enum class MotorCommand {
+    ROTATE_TO_PERCENT,
+    CALIBRATE,
+    BUTTON_UP,
+    BUTTON_DOWN,
+    STOP
+};
+
+struct MotorCommandMessage {
+    MotorCommand mc;
+    uint32_t pos;   //i.e. percentage
+};
+
 class Motor
 {
     public:
@@ -31,7 +49,9 @@ class Motor
         uint16_t getNumStepsPerFullRotation();
         uint32_t getCurrentStepPos();
         uint32_t getWindowHeightLimitSteps();
+        QueueHandle_t getCommandQueue(); //QueueHandle_t already pointer
         void init();    //Inits GPIO
+        void processCommands();     //All-inclusive function to drive queued motor commands
         void set_step(uint8_t phase);
         void calibrateCurrentStepPosZero();     //Call when motor is in zero'd position
         void rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps);                //Rotate based on # steps
@@ -46,6 +66,7 @@ class Motor
         uint16_t        m_numStepsPerFullRotation;
         uint32_t        m_currentStepPos;
         uint32_t        m_windowHeightLimitSteps;
+        QueueHandle_t   m_commandQueue;
         
 };
 
