@@ -45,6 +45,10 @@ void    Button::update(Motor *m)
         cmd.mc = MotorCommand::BUTTON_DOWN;
         xQueueSend(m->getCommandQueue(), &cmd, pdMS_TO_TICKS(CMD_TIMEOUT_MS));
     }
+    if (!readButtonCalib()) {
+        cmd.mc = MotorCommand::CALIBRATE;
+        xQueueSend(m->getCommandQueue(), &cmd, pdMS_TO_TICKS(CMD_TIMEOUT_MS));
+    }
 
     // vTaskDelay(pdMS_TO_TICKS(10)); //10ms delay
 }

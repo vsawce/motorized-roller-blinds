@@ -137,6 +137,9 @@ void Motor::processCommands()
             case MotorCommand::BUTTON_DOWN:
                 rotateNumSteps(MotorDriveDirection::Reverse, BUTTON_STEPS_PER_UPDATE); //Rotate # steps based on user-def macro
                 break;
+            case MotorCommand::CALIBRATE:
+                calibrateCurrentStepPosZero();
+                break;
         }
     }
 }
@@ -160,6 +163,7 @@ void Motor::releaseMotor()
 void Motor::calibrateCurrentStepPosZero()
 {
     m_currentStepPos = 0;
+    printf("Calibrated, set current step pos to 0");
 }
 
 void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
