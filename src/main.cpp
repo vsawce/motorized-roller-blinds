@@ -112,12 +112,6 @@ extern "C" {
 //Can remove typedef if in C++ do get similar typedef struct behavior from C
 
 #if USE_LED
-
-struct BlinkTaskParams
-{
-    LED     *s_led_ptr;  // Pass the address of the LED object
-};
-
 void blink_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
@@ -125,11 +119,9 @@ void blink_task(void *pvParameters)
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
-    BlinkTaskParams *params = (BlinkTaskParams *)pvParameters;
-
     log_send("blink_task started on core %d\n", portGET_CORE_ID());
 
-    LED     *led_ptr = params->s_led_ptr;
+    LED     *led_ptr = (LED*)pvParameters;
 
     while (true) {
         led_ptr->toggle();
@@ -153,12 +145,6 @@ void blink_task(void *pvParameters)
 //  MOTOR TASK
 ///////////////////
 
-//Can remove typedef if in C++ do get similar typedef struct behavior from C
-struct MotorTaskParams
-{
-    Motor *s_mtr_ptr;         // Pointer to the LED object
-};
-
 void motor_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
@@ -166,11 +152,9 @@ void motor_task(void *pvParameters)
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
-    MotorTaskParams *params = (MotorTaskParams *)pvParameters;
-
     log_send("motor_task started on core %d\n", portGET_CORE_ID());
 
-    Motor *mtr_ptr = params->s_mtr_ptr;
+    Motor *mtr_ptr = (Motor*)pvParameters;
 
     Button b;
 
@@ -201,7 +185,7 @@ void motor_task(void *pvParameters)
 //  LOGGER TASK
 ///////////////////
 
-void logger_task(void *params)
+void logger_task(__unused void *pvParameters)
 {
     log_send("logger_task started on core %d\n", portGET_CORE_ID());
 
@@ -213,16 +197,11 @@ void logger_task(void *params)
 ///////////////////
 // WIFI TASK
 ///////////////////
-//Can remove typedef if in C++ do get similar typedef struct behavior from C
-struct WifiTaskParams
-{
-    Wifi    *s_wifi_ptr;    // Pointer to the LED object
-};
 
 void wifi_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
-        //log_send("Motor task: Invalid parameters");
+        // printf("Motor task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
@@ -240,11 +219,9 @@ void wifi_task(void *pvParameters)
 
     //printf("\"BLINDS::WINDOW_HEIGHT_MM\":%dmm\t\"getWindowHeightLimitSteps()\": %dsteps\n", BLINDS::WINDOW_HEIGHT_MM, mtr.getWindowHeightLimitSteps());
 
-    WifiTaskParams *params = (WifiTaskParams *)pvParameters;
-
     log_send("wifi_task started on core %d\n", portGET_CORE_ID());
 
-    Wifi    *wifi_ptr   = params->s_wifi_ptr;
+    Wifi    *wifi_ptr   = (Wifi*)pvParameters;
 
     log_send("Initializing wifi...\n");
     if (cyw43_arch_init()) {
@@ -279,21 +256,14 @@ void wifi_task(void *pvParameters)
     vTaskCoreAffinitySet(logger_task_handle, 0x1); //Set logger_task to 1st core
 
 #if USE_LED
-    //Init LED, if it fails then print
-    BlinkTaskParams btParams = {
-        .s_led_ptr = &led,                  // Pass the address of the LED object
-    };
-    //if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
+    //Init LED
     TaskHandle_t blink_task_handle;
-    xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &btParams, BLINK_TASK_PRIORITY, &blink_task_handle);
+    xTaskCreate(blink_task, "BlinkTask", BLINK_TASK_STACK_SIZE, &led, BLINK_TASK_PRIORITY, &blink_task_handle);
     vTaskCoreAffinitySet(blink_task_handle, 0x2); //Set blink_task to 2nd core
 #endif
 
-    MotorTaskParams mtParams = {
-        .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
-    };
     TaskHandle_t motor_task_handle;
-    xTaskCreate(motor_task, "MotorTask", MOTOR_TASK_STACK_SIZE, &mtParams, MOTOR_TASK_PRIORITY, &motor_task_handle);
+    xTaskCreate(motor_task, "MotorTask", MOTOR_TASK_STACK_SIZE, &mtr, MOTOR_TASK_PRIORITY, &motor_task_handle);
     vTaskCoreAffinitySet(motor_task_handle, 0x2); //Set motor_task to 2nd core
 
     
@@ -321,12 +291,9 @@ int main()
 
     if (log_init()) printf("Failed to initialize logger\n");
 
-    WifiTaskParams wifiParams = {
-        .s_wifi_ptr = &wifi,                  // Pass the address of the LED object
-    };
     // Create the Wi-Fi task on Core 0
     TaskHandle_t wifi_task_handle;
-    xTaskCreate(wifi_task, "WifiTask", WIFI_TASK_STACK_SIZE, &wifiParams, WIFI_TASK_PRIORITY, &wifi_task_handle);
+    xTaskCreate(wifi_task, "WifiTask", WIFI_TASK_STACK_SIZE, &wifi, WIFI_TASK_PRIORITY, &wifi_task_handle);
 
     // Set the task to run on Core 1
     // vTaskCoreAffinitySet(wifi_task_handle, 0x1);  // Bind the Wi-Fi task to 2nd core
