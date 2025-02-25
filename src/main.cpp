@@ -115,17 +115,17 @@ extern "C" {
 void blink_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
-        //log_send("Blink task: Invalid parameters");
+        //log_send(LogType::ERROR, "Blink task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
-    log_send("blink_task started on core %d\n", portGET_CORE_ID());
+    log_send(LogType::STANDARD, "blink_task started on core %d\n", portGET_CORE_ID());
 
     LED     *led_ptr = (LED*)pvParameters;
 
     while (true) {
         led_ptr->toggle();
-        log_send("Toggled");
+        log_send(LogType::DEBUG, "Toggled");
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 
@@ -148,11 +148,11 @@ void blink_task(void *pvParameters)
 void motor_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
-        //log_send("Motor task: Invalid parameters");
+        //log_send(LogType::ERROR, "Motor task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
-    log_send("motor_task started on core %d\n", portGET_CORE_ID());
+    log_send(LogType::STANDARD, "motor_task started on core %d\n", portGET_CORE_ID());
 
     Motor *mtr_ptr = (Motor*)pvParameters;
 
@@ -187,7 +187,7 @@ void motor_task(void *pvParameters)
 
 void logger_task(__unused void *pvParameters)
 {
-    log_send("logger_task started on core %d\n", portGET_CORE_ID());
+    log_send(LogType::STANDARD, "logger_task started on core %d\n", portGET_CORE_ID());
 
     while (true) {
         log_receive(); //Consume log in queue and print it
@@ -219,31 +219,31 @@ void wifi_task(void *pvParameters)
 
     //printf("\"BLINDS::WINDOW_HEIGHT_MM\":%dmm\t\"getWindowHeightLimitSteps()\": %dsteps\n", BLINDS::WINDOW_HEIGHT_MM, mtr.getWindowHeightLimitSteps());
 
-    log_send("wifi_task started on core %d\n", portGET_CORE_ID());
+    log_send(LogType::STANDARD, "wifi_task started on core %d\n", portGET_CORE_ID());
 
     Wifi    *wifi_ptr   = (Wifi*)pvParameters;
 
-    log_send("Initializing wifi...\n");
+    log_send(LogType::STANDARD, "Initializing wifi...\n");
     if (cyw43_arch_init()) {
-        log_send("Failed to init CYW43 Wifi & LED\n");
+        log_send(LogType::ERROR, "Failed to init CYW43 Wifi & LED\n");
     }
 
     watchdog_update(); //Update WDT
 
-    log_send("Enabling WiFi station mode...\n");
+    log_send(LogType::STANDARD, "Enabling WiFi station mode...\n");
     wifi_ptr->enableStationMode();
 
     watchdog_update(); //Update WDT
     
-    log_send("Connecting to wifi SSID %s ...\n", WIFI_SSID);
+    log_send(LogType::STANDARD, "Connecting to wifi SSID %s ...\n", WIFI_SSID);
     if (wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS)) {
-        log_send("Failed to connect to wifi SSID %s . Timeout: \n", WIFI_SSID);
+        log_send(LogType::ERROR, "Failed to connect to wifi SSID %s . Timeout: \n", WIFI_SSID);
     }
     else {
-        log_send("Connected to wifi SSID %s !\n", WIFI_SSID);
+        log_send(LogType::STANDARD, "Connected to wifi SSID %s !\n", WIFI_SSID);
     }
 
-    log_send("Assigned IP is: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
+    log_send(LogType::STANDARD, "Assigned IP is: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
 
     watchdog_update(); //Update WDT
 
@@ -267,7 +267,7 @@ void wifi_task(void *pvParameters)
     vTaskCoreAffinitySet(motor_task_handle, 0x2); //Set motor_task to 2nd core
 
     
-    log_send("Pinging %s\n", PING_ADDR);
+    log_send(LogType::STANDARD, "Pinging %s\n", PING_ADDR);
     ip_addr_t ping_addr;
     ipaddr_aton(PING_ADDR, &ping_addr);
     ping_init(&ping_addr);

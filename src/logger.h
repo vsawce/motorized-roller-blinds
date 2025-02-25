@@ -11,14 +11,22 @@
 #include "queue.h"  // Add this line
 
 
+enum class LogType {
+    STANDARD,
+    DEBUG,
+    ERROR
+};
+
 // Logging definitions
+#define LOG_ENABLE_DEBUG 1
+
 #define LOG_QUEUE_SIZE 10           // Maximum number of messages in the queue
 #define LOG_MESSAGE_MAX_LENGTH 64   // Maximum length of each log message
 
 uint32_t log_getUptimeCentiseconds(void); //Centiseconds should last ~1.36 years with uint32_t
 
 int log_init();
-void log_send(const char *format, ...);
+void log_send(LogType lt, const char *format, ...);
 void log_receive();
 
 #endif

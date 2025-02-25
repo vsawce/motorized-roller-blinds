@@ -117,7 +117,7 @@ void Motor::init()
 
     m_commandQueue = xQueueCreate(CMD_QUEUE_SIZE, sizeof(MotorCommandMessage));
     if (m_commandQueue == NULL) {
-        // log_send("Failed to create cmd queue\n");
+        log_send(LogType::ERROR, "Failed to create cmd queue\n");
         return;
     }
 }
@@ -164,7 +164,7 @@ void Motor::releaseMotor()
 void Motor::calibrateCurrentStepPosZero()
 {
     m_currentStepPos = 0;
-    log_send("Calibrated, set current step pos to 0");
+    log_send(LogType::STANDARD, "Calibrated, set current step pos to 0");
 }
 
 void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
@@ -172,7 +172,7 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
     if (dir == MotorDriveDirection::Forward) {
         for (uint16_t pos = 0; pos < numSteps; pos++) {
             if (m_currentStepPos == m_windowHeightLimitSteps) { //Release motor?
-                log_send("Max window height reached! Current/max pos: %u steps\n", m_currentStepPos);
+                log_send(LogType::STANDARD, "Max window height reached! Current/max pos: %u steps\n", m_currentStepPos);
                 break;
             }
             m_currentStepPos++;
@@ -183,7 +183,7 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
     else {
         for (uint16_t pos = numSteps; pos > 0; pos--) {
             if (m_currentStepPos == 0) { //Release motor?
-                log_send("Min window retraction reached! Current pos is zero!\n");
+                log_send(LogType::STANDARD, "Min window retraction reached! Current pos is zero!\n");
                 break;
             }
             m_currentStepPos--;
@@ -204,7 +204,7 @@ void Motor::rotateToPercent(uint8_t percent)
 {
     //Check if percent value is in valid range (0-100)
     if (percent > MAX_PERCENT) {
-        //log_send("rotateToPercent input out of range! Value must be 0-100 inclusive")
+        //log_send(LogType::ERROR, "rotateToPercent input out of range! Value must be 0-100 inclusive")
         return;
     }
 
@@ -224,12 +224,12 @@ void Motor::rotateToPercent(uint8_t percent)
         dirToMove = MotorDriveDirection::Reverse;
     }
 
-    //log_send("Moving to targetStepPos=%u. m_currentStepPos=%u\n", targetStepPos, m_currentStepPos);
+    //log_send(LogType::DEBUG, "Moving to targetStepPos=%u. m_currentStepPos=%u\n", targetStepPos, m_currentStepPos);
 
     //Enact rotateNumSteps motor driving
     rotateNumSteps(dirToMove, stepsToMove);
 
-    //log_send("Done. m_currentStepPos=%u\n", m_currentStepPos);
+    //log_send(LogType::DEBUG, "Done. m_currentStepPos=%u\n", m_currentStepPos);
 }
 
 //NEED TO VALIDATE DISTANCE ACCURACY
@@ -247,7 +247,7 @@ void Motor::rotateLinearHeightMillimeters(MotorDriveDirection dir, uint8_t heigh
     numStepsToRotate *= height_mm;
     numStepsToRotate /= BLINDS::SHAFT_DIAMETER_MM * PI_TIMES_100;
     
-    //log_send("Rotating %d steps\n", numStepsToRotate);
+    //log_send(LogType::DEBUG, "Rotating %d steps\n", numStepsToRotate);
    
     rotateNumSteps(dir, numStepsToRotate);
 }
