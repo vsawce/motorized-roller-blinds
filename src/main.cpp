@@ -26,7 +26,7 @@ extern "C" {
 
 #include "definitions.h"
 #include "led.h"
-#include "init.h"
+#include "wifi.h"
 #include "motor.h"
 #include "logger.h"
 #include "button.h"
