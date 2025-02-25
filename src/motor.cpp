@@ -139,6 +139,7 @@ void Motor::processCommands()
                 break;
             case MotorCommand::CALIBRATE:
                 calibrateCurrentStepPosZero();
+                vTaskDelay(pdMS_TO_TICKS(250)); //Lazy delay to eliminate need for calibration button debounce
                 break;
         }
     }
