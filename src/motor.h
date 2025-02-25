@@ -10,6 +10,7 @@
 #include "task.h" 
 #include "queue.h"
 
+#include "logger.h"
 #include "definitions.h"
 
 // Logging definitions

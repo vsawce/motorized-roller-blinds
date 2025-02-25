@@ -115,27 +115,25 @@ extern "C" {
 
 struct BlinkTaskParams
 {
-    Logger  *s_log_ptr;  // Pass the address of the Log object
     LED     *s_led_ptr;  // Pass the address of the LED object
 };
 
 void blink_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
-        //send_log("Blink task: Invalid parameters");
+        //log_send("Blink task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
     BlinkTaskParams *params = (BlinkTaskParams *)pvParameters;
 
-    Logger  *log_ptr = params->s_log_ptr;
-    log_ptr->send("blink_task started on core %d\n", portGET_CORE_ID());
+    log_send("blink_task started on core %d\n", portGET_CORE_ID());
 
     LED     *led_ptr = params->s_led_ptr;
 
     while (true) {
         led_ptr->toggle();
-        log_ptr->send("Toggled");
+        log_send("Toggled");
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 
@@ -158,21 +156,19 @@ void blink_task(void *pvParameters)
 //Can remove typedef if in C++ do get similar typedef struct behavior from C
 struct MotorTaskParams
 {
-    Logger  *s_log_ptr;  // Pass the address of the Log object
     Motor *s_mtr_ptr;         // Pointer to the LED object
 };
 
 void motor_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
-        //send_log("Motor task: Invalid parameters");
+        //log_send("Motor task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
     MotorTaskParams *params = (MotorTaskParams *)pvParameters;
 
-    Logger  *log_ptr = params->s_log_ptr;
-    log_ptr->send("motor_task started on core %d\n", portGET_CORE_ID());
+    log_send("motor_task started on core %d\n", portGET_CORE_ID());
 
     Motor *mtr_ptr = params->s_mtr_ptr;
 
@@ -207,16 +203,10 @@ void motor_task(void *pvParameters)
 
 void logger_task(void *params)
 {
-    if (params == NULL) {
-        //send_log("Blink task: Invalid parameters");
-        vTaskDelete(NULL);  // Delete this task if parameters are invalid
-    }
-
-    Logger *log_ptr = static_cast<Logger *>(params);
-    log_ptr->send("logger_task started on core %d\n", portGET_CORE_ID());
+    log_send("logger_task started on core %d\n", portGET_CORE_ID());
 
     while (true) {
-        log_ptr->receive();
+        log_receive(); //Consume log in queue and print it
     }
 }
 
@@ -226,14 +216,13 @@ void logger_task(void *params)
 //Can remove typedef if in C++ do get similar typedef struct behavior from C
 struct WifiTaskParams
 {
-    Logger  *s_log_ptr;     // Pass the address of the Log object
     Wifi    *s_wifi_ptr;    // Pointer to the LED object
 };
 
 void wifi_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
-        //send_log("Motor task: Invalid parameters");
+        //log_send("Motor task: Invalid parameters");
         vTaskDelete(NULL);  // Delete this task if parameters are invalid
     }
 
@@ -253,32 +242,31 @@ void wifi_task(void *pvParameters)
 
     WifiTaskParams *params = (WifiTaskParams *)pvParameters;
 
-    Logger  *log_ptr    = params->s_log_ptr;
-    log_ptr->send("wifi_task started on core %d\n", portGET_CORE_ID());
+    log_send("wifi_task started on core %d\n", portGET_CORE_ID());
 
     Wifi    *wifi_ptr   = params->s_wifi_ptr;
 
-    log_ptr->send("Initializing wifi...\n");
+    log_send("Initializing wifi...\n");
     if (cyw43_arch_init()) {
-        log_ptr->send("Failed to init CYW43 Wifi & LED\n");
+        log_send("Failed to init CYW43 Wifi & LED\n");
     }
 
     watchdog_update(); //Update WDT
 
-    log_ptr->send("Enabling WiFi station mode...\n");
+    log_send("Enabling WiFi station mode...\n");
     wifi_ptr->enableStationMode();
 
     watchdog_update(); //Update WDT
     
-    log_ptr->send("Connecting to wifi SSID %s ...\n", WIFI_SSID);
+    log_send("Connecting to wifi SSID %s ...\n", WIFI_SSID);
     if (wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS)) {
-        log_ptr->send("Failed to connect to wifi SSID %s . Timeout: \n", WIFI_SSID);
+        log_send("Failed to connect to wifi SSID %s . Timeout: \n", WIFI_SSID);
     }
     else {
-        log_ptr->send("Connected to wifi SSID %s !\n", WIFI_SSID);
+        log_send("Connected to wifi SSID %s !\n", WIFI_SSID);
     }
 
-    log_ptr->send("Assigned IP is: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
+    log_send("Assigned IP is: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
 
     watchdog_update(); //Update WDT
 
@@ -287,13 +275,12 @@ void wifi_task(void *pvParameters)
     vTaskDelay(1000);
 
     TaskHandle_t logger_task_handle;
-    xTaskCreate(logger_task, "LoggerTask", LOGGER_TASK_STACK_SIZE, log_ptr, LOGGER_TASK_PRIORITY, &logger_task_handle);
+    xTaskCreate(logger_task, "LoggerTask", LOGGER_TASK_STACK_SIZE, NULL, LOGGER_TASK_PRIORITY, &logger_task_handle);
     vTaskCoreAffinitySet(logger_task_handle, 0x1); //Set logger_task to 1st core
 
 #if USE_LED
     //Init LED, if it fails then print
     BlinkTaskParams btParams = {
-        .s_log_ptr = log_ptr,                  // Pass the address of the Log object
         .s_led_ptr = &led,                  // Pass the address of the LED object
     };
     //if (init_wifi_led()) printf("Failed to initialize the CYW43 Wifi/LED\n");
@@ -303,7 +290,6 @@ void wifi_task(void *pvParameters)
 #endif
 
     MotorTaskParams mtParams = {
-        .s_log_ptr = log_ptr,                  // Pass the address of the Log object
         .s_mtr_ptr = &mtr,                  // Pass the address of the LED object
     };
     TaskHandle_t motor_task_handle;
@@ -311,7 +297,7 @@ void wifi_task(void *pvParameters)
     vTaskCoreAffinitySet(motor_task_handle, 0x2); //Set motor_task to 2nd core
 
     
-    log_ptr->send("Pinging %s\n", PING_ADDR);
+    log_send("Pinging %s\n", PING_ADDR);
     ip_addr_t ping_addr;
     ipaddr_aton(PING_ADDR, &ping_addr);
     ping_init(&ping_addr);
@@ -331,14 +317,11 @@ void wifi_task(void *pvParameters)
 //##################################//
 int main()
 {
-    Logger log;
-
     Wifi wifi;
 
-    if (init_logger(&log)) printf("Failed to initialize logger\n");
+    if (log_init()) printf("Failed to initialize logger\n");
 
     WifiTaskParams wifiParams = {
-        .s_log_ptr  = &log,                  // Pass the address of the Log object
         .s_wifi_ptr = &wifi,                  // Pass the address of the LED object
     };
     // Create the Wi-Fi task on Core 0

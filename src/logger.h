@@ -15,18 +15,10 @@
 #define LOG_QUEUE_SIZE 10           // Maximum number of messages in the queue
 #define LOG_MESSAGE_MAX_LENGTH 64   // Maximum length of each log message
 
-uint32_t getUptimeCentiseconds(void); //Centiseconds should last ~1.36 years with uint32_t
+uint32_t log_getUptimeCentiseconds(void); //Centiseconds should last ~1.36 years with uint32_t
 
-class Logger
-{
-    public:
-        Logger();
-        int init();
-        void send(const char *format, ...);
-        void receive();
-
-    private:
-        QueueHandle_t m_logQueue; // Log queue (alr a ptr)
-};
+int log_init();
+void log_send(const char *format, ...);
+void log_receive();
 
 #endif
