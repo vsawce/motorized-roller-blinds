@@ -131,6 +131,12 @@ void Motor::processCommands()
             case MotorCommand::ROTATE_TO_PERCENT:
                 rotateToPercent(cmd.pos);
                 break;
+            case MotorCommand::BUTTON_UP:
+                rotateNumSteps(MotorDriveDirection::Forward, BUTTON_STEPS_PER_UPDATE); //Rotate # steps based on user-def macro
+                break;
+            case MotorCommand::BUTTON_DOWN:
+                rotateNumSteps(MotorDriveDirection::Reverse, BUTTON_STEPS_PER_UPDATE); //Rotate # steps based on user-def macro
+                break;
         }
     }
 }

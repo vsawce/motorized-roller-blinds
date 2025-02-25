@@ -37,13 +37,13 @@ void    Button::update(Motor *m)
     MotorCommandMessage cmd;
     //Active low
     if (!readButtonUp()) {
-        cmd.mc = MotorCommand::ROTATE_TO_PERCENT;   //TEST CODE. TODO: IMPLEMENT BUTTON ACTION
-        cmd.pos = 50;                               //TEST CODE. TODO: IMPLEMENT BUTTON ACTION
+        cmd.mc = MotorCommand::BUTTON_UP;
+        cmd.pos = 0;                          //Set to 0 in case null reference
         xQueueSend(m->getCommandQueue(), &cmd, pdMS_TO_TICKS(CMD_TIMEOUT_MS));
     }
     if (!readButtonDown()) {
-        cmd.mc = MotorCommand::ROTATE_TO_PERCENT;   //TEST CODE. TODO: IMPLEMENT BUTTON ACTION
-        cmd.pos = 100;                              //TEST CODE. TODO: IMPLEMENT BUTTON ACTION
+        cmd.mc = MotorCommand::BUTTON_DOWN;
+        cmd.pos = 0;                          //Set to 0 in case null reference
         xQueueSend(m->getCommandQueue(), &cmd, pdMS_TO_TICKS(CMD_TIMEOUT_MS));
     }
 

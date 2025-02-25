@@ -16,6 +16,8 @@
 #define CMD_QUEUE_SIZE 5           // Maximum number of messages in the queue
 #define CMD_TIMEOUT_MS 100
 
+#define BUTTON_STEPS_PER_UPDATE     10  //Number of steps to increase per button update/action
+
 enum class MotorDriveMode {
     WaveDrive,
     NormalDrive,
