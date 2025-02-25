@@ -35,15 +35,14 @@ uint8_t Button::readButtonCalib()
 void    Button::update(Motor *m)
 {
     MotorCommandMessage cmd;
+    cmd.pos = 0; //Default pos to prevent null ref
     //Active low
     if (!readButtonUp()) {
         cmd.mc = MotorCommand::BUTTON_UP;
-        cmd.pos = 0;                          //Set to 0 in case null reference
         xQueueSend(m->getCommandQueue(), &cmd, pdMS_TO_TICKS(CMD_TIMEOUT_MS));
     }
     if (!readButtonDown()) {
         cmd.mc = MotorCommand::BUTTON_DOWN;
-        cmd.pos = 0;                          //Set to 0 in case null reference
         xQueueSend(m->getCommandQueue(), &cmd, pdMS_TO_TICKS(CMD_TIMEOUT_MS));
     }
 
