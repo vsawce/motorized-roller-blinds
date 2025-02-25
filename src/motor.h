@@ -55,6 +55,7 @@ class Motor
         void init();    //Inits GPIO
         void processCommands();     //All-inclusive function to drive queued motor commands
         void set_step(uint8_t phase);
+        void releaseMotor();                    //Turn motor GPIO off
         void calibrateCurrentStepPosZero();     //Call when motor is in zero'd position
         void rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps);                //Rotate based on # steps
         void rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations);     //Rotate shaft amount of degrees

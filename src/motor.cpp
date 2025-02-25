@@ -150,6 +150,13 @@ void Motor::set_step(uint8_t phase)
     }
 }
 
+void Motor::releaseMotor()
+{
+    for (uint8_t i = 0; i < NUM_PINS; i++) {
+        gpio_put(pinIn[i], 0);
+    }
+}
+
 void Motor::calibrateCurrentStepPosZero()
 {
     m_currentStepPos = 0;
