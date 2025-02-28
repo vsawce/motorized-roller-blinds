@@ -74,7 +74,6 @@ Motor::Motor(uint8_t pinIn1, uint8_t pinIn2, uint8_t pinIn3, uint8_t pinIn4, Mot
 
     //Turn linear window height to max # of steps
     m_windowHeightLimitSteps = (m_numStepsPerFullRotation * 100 * BLINDS::WINDOW_HEIGHT_MM) / (BLINDS::SHAFT_DIAMETER_MM * PI_TIMES_100);
-
 }
 
 // uint8_t Motor::getDriveMode()
@@ -122,11 +121,13 @@ void Motor::init()
     }
 }
 
-void Motor::processCommands()
+uint8_t Motor::processCommands(TimerHandle_t mr_th)
 {
+    uint8_t commandProcessed = 0;
     MotorCommandMessage cmd;
 
     while (xQueueReceive(m_commandQueue, &cmd, 0) == pdTRUE) {
+        commandProcessed = 1; //At least one command was processed
         switch (cmd.mc) {
             case MotorCommand::ROTATE_TO_PERCENT:
                 rotateToPercent(cmd.pos);
@@ -143,6 +144,8 @@ void Motor::processCommands()
                 break;
         }
     }
+
+    return commandProcessed;
 }
 
 void Motor::set_step(uint8_t phase)
@@ -151,13 +154,6 @@ void Motor::set_step(uint8_t phase)
         for (uint8_t i = 0; i < NUM_PINS; i++) {
             gpio_put(pinIn[i], (m_driveMode[phase] >> i) & 1);
         }
-    }
-}
-
-void Motor::releaseMotor()
-{
-    for (uint8_t i = 0; i < NUM_PINS; i++) {
-        gpio_put(pinIn[i], 0);
     }
 }
 
@@ -171,7 +167,7 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
 {
     if (dir == MotorDriveDirection::Forward) {
         for (uint16_t pos = 0; pos < numSteps; pos++) {
-            if (m_currentStepPos == m_windowHeightLimitSteps) { //Release motor?
+            if (m_currentStepPos == m_windowHeightLimitSteps) {
                 log_send(LogType::STANDARD, "Max window height reached! Current/max pos: %u steps\n", m_currentStepPos);
                 break;
             }
@@ -182,7 +178,7 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
     }
     else {
         for (uint16_t pos = numSteps; pos > 0; pos--) {
-            if (m_currentStepPos == 0) { //Release motor?
+            if (m_currentStepPos == 0) {
                 log_send(LogType::STANDARD, "Min window retraction reached! Current pos is zero!\n");
                 break;
             }
@@ -250,4 +246,12 @@ void Motor::rotateLinearHeightMillimeters(MotorDriveDirection dir, uint8_t heigh
     //log_send(LogType::DEBUG, "Rotating %d steps\n", numStepsToRotate);
    
     rotateNumSteps(dir, numStepsToRotate);
+}
+
+void Motor::releaseMotor()
+{
+    log_send(LogType::DEBUG, "Releasing motor");
+    for (uint8_t i = 0; i < NUM_PINS; i++) {
+        gpio_put(pinIn[i], 0);
+    }
 }

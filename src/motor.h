@@ -9,6 +9,7 @@
 #include "FreeRTOS.h"
 #include "task.h" 
 #include "queue.h"
+#include "timers.h"
 
 #include "logger.h"
 #include "definitions.h"
@@ -16,6 +17,8 @@
 // Logging definitions
 #define CMD_QUEUE_SIZE 5           // Maximum number of messages in the queue
 #define CMD_TIMEOUT_MS 100
+
+#define MOTOR_RELEASE_TIMEOUT_MS    1000 //Release motor if no new command after x ms
 
 #define BUTTON_STEPS_PER_UPDATE     10  //Number of steps to increase per button update/action
 
@@ -54,15 +57,15 @@ class Motor
         uint32_t getWindowHeightLimitSteps();
         QueueHandle_t getCommandQueue(); //QueueHandle_t already pointer
         void init();    //Inits GPIO
-        void processCommands();     //All-inclusive function to drive queued motor commands
+        uint8_t processCommands(TimerHandle_t mr_th);     //All-inclusive function to drive queued motor commands. Ret 0 if no command processed during call
         void set_step(uint8_t phase);
-        void releaseMotor();                    //Turn motor GPIO off
         void calibrateCurrentStepPosZero();     //Call when motor is in zero'd position
         void rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps);                //Rotate based on # steps
         void rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations);     //Rotate shaft amount of degrees
         void rotateToPercent(uint8_t percent);   //Rotate to a specified percentage
         void rotateLinearHeightMillimeters(MotorDriveDirection dir, uint8_t height_mm); //Rotate linear distance
 
+        static void releaseMotor();                    //Turn motor GPIO off. Static because needs non-member access from timer callback func
 
     private: //m_ naming convention for private member variables
         const uint8_t   *m_driveMode;

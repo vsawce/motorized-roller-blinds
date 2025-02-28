@@ -12,6 +12,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "timers.h"
 
 // Inclusion of C program
 #ifdef __cplusplus
@@ -145,6 +146,13 @@ void blink_task(void *pvParameters)
 //  MOTOR TASK
 ///////////////////
 
+//  Timer callback function must match the prototype:
+//      void vCallbackFunctionExample( TimerHandle_t xTimer );
+void vTimerCallback_ReleaseMotor(TimerHandle_t xTimer)
+{
+    Motor::releaseMotor();
+}
+
 void motor_task(void *pvParameters)
 {
     if (pvParameters == NULL) {
@@ -160,6 +168,10 @@ void motor_task(void *pvParameters)
 
     b.init();
 
+    // Create RTOS timer object to release motor
+    TimerHandle_t motorReleaseTimerHandle;
+    motorReleaseTimerHandle = xTimerCreate("MotorReleaseTimer", pdMS_TO_TICKS(MOTOR_RELEASE_TIMEOUT_MS), pdFALSE, (void*) 0, vTimerCallback_ReleaseMotor);
+
     while (true) {
         // Test code to rotate the shaft back and forth
         // mtr_ptr->rotateToPercent(0);
@@ -174,7 +186,9 @@ void motor_task(void *pvParameters)
         // mtr_ptr->rotateToPercent(50);
         // vTaskDelay(pdMS_TO_TICKS(1000));
         b.update(mtr_ptr);
-        mtr_ptr->processCommands();
+        if (mtr_ptr->processCommands(motorReleaseTimerHandle)) {
+            xTimerStart(motorReleaseTimerHandle, 0);
+        }
 
         vTaskDelay(pdMS_TO_TICKS(10));
     }
