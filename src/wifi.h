@@ -11,7 +11,21 @@
 #include "task.h"
 #include "ping.h"
 
+#define MQTT_ADDR   "10.0.2.7" //Home assistant static IP
+#define MQTT_ADDR_PORT   1883
+
+#ifndef MQTT_USER
+#define MQTT_USER "" //Empty
+#warning "MQTT_USER not defined! Leaving as empty"
+#endif
+
+#ifndef MQTT_PASSWORD
+#define MQTT_PASSWORD "" //Empty
+#warning "MQTT_PASSWORD not defined! Leaving as empty"
+#endif
+
 #ifndef PING_ADDR
+//#define PING_ADDR "10.0.2.7"
 #define PING_ADDR "8.8.8.8" //Ping google
 #endif
 

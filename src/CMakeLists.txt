@@ -14,6 +14,8 @@ target_compile_definitions(${TARGET_NAME} PRIVATE #SYS mode, multithreaded
     #configNUMBER_OF_CORES=1
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
+    MQTT_USER=\"${MQTT_USER}\"
+    MQTT_PASSWORD=\"${MQTT_PASSWORD}\"
     NO_SYS=0            # don't want NO_SYS (generally this would be in your lwipopts.h)
     LWIP_SOCKET=1       # we need the socket API (generally this would be in your lwipopts.h)
     PING_USE_SOCKETS=1

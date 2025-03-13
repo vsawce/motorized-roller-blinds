@@ -102,4 +102,10 @@
 #define SLIP_DEBUG                  LWIP_DBG_OFF
 #define DHCP_DEBUG                  LWIP_DBG_OFF
 
+/* Need to increase MEMP_NUM_SYS_TIMEOUT by one?
+ * https://forums.raspberrypi.com/viewtopic.php?t=341914
+ */
+// #define MEMP_NUM_SYS_TIMEOUT   (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 1)
+// #define MQTT_REQ_MAX_IN_FLIGHT  (5) /* max subscribe requests */
+
 #endif /* __LWIPOPTS_H__ */
