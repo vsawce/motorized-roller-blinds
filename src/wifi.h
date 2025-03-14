@@ -6,13 +6,21 @@
 #include "pico/stdlib.h"
 
 #include "lwip/ip4_addr.h"
+#include "lwip/apps/mqtt.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "ping.h"
 
+#include "logger.h"
+
 #define MQTT_ADDR   "10.0.2.7" //Home assistant static IP
 #define MQTT_ADDR_PORT   1883
+
+#ifndef MQTT_CLIENT_ID
+#define MQTT_CLIENT_ID "PicoW" //Empty
+#warning "MQTT_CLIENT_ID not defined! Leaving as PicoW"
+#endif
 
 #ifndef MQTT_USER
 #define MQTT_USER "" //Empty
@@ -36,6 +44,12 @@ class Wifi
         int init(); //cyw43_arch_init
         void enableStationMode();
         int connectToWifi(const char *ssid, const char *pw, uint32_t authMethod, uint32_t timeout);
+        void initMqtt();
+        err_t connectMqtt();
+
+    private:
+        mqtt_client_t *m_mqttClient;
+        struct mqtt_connect_client_info_t m_ciStruct;
 
 };
 

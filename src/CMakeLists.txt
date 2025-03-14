@@ -14,6 +14,7 @@ target_compile_definitions(${TARGET_NAME} PRIVATE #SYS mode, multithreaded
     #configNUMBER_OF_CORES=1
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
+    MQTT_CLIENT_ID=\"${MQTT_CLIENT_ID}\"                #Name that MQTT broker sees
     MQTT_USER=\"${MQTT_USER}\"
     MQTT_PASSWORD=\"${MQTT_PASSWORD}\"
     NO_SYS=0            # don't want NO_SYS (generally this would be in your lwipopts.h)
@@ -33,6 +34,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE
     # pico_cyw43_arch_lwip_threadsafe_background
     pico_stdlib
     pico_lwip_iperf
+    pico_lwip_mqtt
     FreeRTOS-Kernel-Heap4 # FreeRTOS kernel and dynamic heap
     )
 

@@ -1,5 +1,17 @@
 #include "wifi.h"
 
+//cpp-only function
+void mqtt_connection_cb(mqtt_client_t* client, void* arg, mqtt_connection_status_t status) {
+    err_t err;
+    if (status == MQTT_CONNECT_ACCEPTED) {
+        log_send(LogType::STANDARD, "mqtt_connection_cb: Successfully connected\n");
+    }
+    else {
+        log_send(LogType::STANDARD, "mqtt_connection_cb: Disconnected, reason: %d\n", status);
+        //   Try to reconnect?
+    }
+}
+
 Wifi wifi;
 
 Wifi::Wifi()
@@ -16,6 +28,24 @@ int Wifi::init()
     return 0;
 }
 
+void Wifi::initMqtt()
+{
+    m_mqttClient = mqtt_client_new();
+
+    /* Setup an empty client info structure */
+    memset(&m_ciStruct, 0, sizeof(m_ciStruct));
+
+    /* Minimal amount of information required is client identifier, so set it here */
+    m_ciStruct.client_id = MQTT_CLIENT_ID;
+    m_ciStruct.client_user = MQTT_USER;
+    m_ciStruct.client_pass = MQTT_PASSWORD;
+    m_ciStruct.keep_alive = 0;
+    m_ciStruct.will_topic = NULL;
+    m_ciStruct.will_msg = NULL;
+    m_ciStruct.will_retain = 0;
+    m_ciStruct.will_qos = 0;
+}
+
 void Wifi::enableStationMode()
 {
     cyw43_arch_enable_sta_mode();
@@ -24,4 +54,23 @@ void Wifi::enableStationMode()
 int Wifi::connectToWifi(const char *ssid, const char *pw, uint32_t authMethod, uint32_t timeout)
 {
     return cyw43_arch_wifi_connect_timeout_ms(ssid, pw, authMethod, 30000);
+}
+
+err_t Wifi::connectMqtt()
+{    
+    err_t err;
+
+    ip_addr_t mqtt_ip;
+    ip4addr_aton(MQTT_ADDR, &mqtt_ip);
+
+    cyw43_arch_lwip_begin();
+    err = mqtt_client_connect(m_mqttClient, &mqtt_ip, MQTT_ADDR_PORT, mqtt_connection_cb, 0, &m_ciStruct);
+    cyw43_arch_lwip_end();
+
+    /* For now just print the result code if something goes wrong*/
+    if (err != ERR_OK) {
+        log_send(LogType::STANDARD, "mqtt_connect return %d\n", err);
+    }
+
+    return err;
 }
