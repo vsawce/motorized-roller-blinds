@@ -6,7 +6,8 @@ void mqtt_incoming_data_cb(void *arg, const uint8_t *data, uint16_t len, uint8_t
     if (flags & MQTT_DATA_FLAG_LAST) {
         /* Last fragment of payload received (or whole part if payload fits receive buffer
             See MQTT_VAR_HEADER_BUFFER_LEN)  */
-        log_send(LogType::DEBUG, "flags & MQTT_DATA_FLAG_LAST"); 
+        log_send(LogType::DEBUG, "flags & MQTT_DATA_FLAG_LAST\n");
+        log_send(LogType::DEBUG, "Content: %s\n", data);
     }
     else {
         /* Handle fragmented payload, store in buffer, write to file or whatever */
