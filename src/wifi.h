@@ -18,7 +18,7 @@
 #define MQTT_ADDR_PORT   1883
 
 #ifndef MQTT_CLIENT_ID
-#define MQTT_CLIENT_ID "PicoW" //Empty
+#define MQTT_CLIENT_ID "picow" //Empty
 #warning "MQTT_CLIENT_ID not defined! Leaving as PicoW"
 #endif
 
@@ -31,6 +31,8 @@
 #define MQTT_PASSWORD "" //Empty
 #warning "MQTT_PASSWORD not defined! Leaving as empty"
 #endif
+
+#define MQTT_TOPIC "/blinds/" MQTT_CLIENT_ID
 
 #ifndef PING_ADDR
 //#define PING_ADDR "10.0.2.7"
