@@ -1,10 +1,42 @@
 #include "wifi.h"
 
+void mqtt_incoming_data_cb(void *arg, const uint8_t *data, uint16_t len, uint8_t flags) {
+    log_send(LogType::DEBUG, "Incoming publish payload with length %d, flags %u\n", len, (unsigned int)flags);
+  
+    if (flags & MQTT_DATA_FLAG_LAST) {
+        /* Last fragment of payload received (or whole part if payload fits receive buffer
+            See MQTT_VAR_HEADER_BUFFER_LEN)  */
+        log_send(LogType::DEBUG, "flags & MQTT_DATA_FLAG_LAST"); 
+    }
+    else {
+        /* Handle fragmented payload, store in buffer, write to file or whatever */
+    }
+}
+
+void mqtt_sub_request_cb(void *arg, err_t result) {
+    log_send(LogType::STANDARD, "Subscribe result: %d\n", result);
+}
+
+void mqtt_incoming_publish_cb(void *arg, const char *topic, uint32_t total_len) {
+    log_send(LogType::DEBUG, "Incoming publish (topic: %s, length %u)\n", topic, (unsigned int)total_len);
+}
+
 //cpp-only function
-void mqtt_connection_cb(mqtt_client_t* client, void* arg, mqtt_connection_status_t status) {
+void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
     err_t err;
     if (status == MQTT_CONNECT_ACCEPTED) {
         log_send(LogType::STANDARD, "mqtt_connection_cb: Successfully connected\n");
+
+        mqtt_set_inpub_callback(client, mqtt_incoming_publish_cb, mqtt_incoming_data_cb, arg);
+
+        log_send(LogType::STANDARD, "mqtt_connection_cb: mqtt_set_inpub_callback done\n");
+
+        // Subscribe to /home/picow topic with QoS 0
+        err = mqtt_subscribe(client, "/home/picow", 0, mqtt_sub_request_cb, arg);
+
+        if (err != ERR_OK) {
+            log_send(LogType::STANDARD, "mqtt_subscribe return: %d\n", err);
+        }
     }
     else {
         log_send(LogType::STANDARD, "mqtt_connection_cb: Disconnected, reason: %d\n", status);
