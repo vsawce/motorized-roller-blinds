@@ -275,38 +275,6 @@ void wifi_task(void *pvParameters)
 
     watchdog_update(); //Update WDT
 
-    ////////
-
-    // mqtt_client_t* client = mqtt_client_new();
-    
-    // struct mqtt_connect_client_info_t ci;
-    // err_t err;
-
-    // /* Setup an empty client info structure */
-    // memset(&ci, 0, sizeof(ci));
-
-    // /* Minimal amount of information required is client identifier, so set it here */
-    // ci.client_id = "PicoW";
-    // ci.client_user = "mqtt_user";
-    // ci.client_pass = "mqtt_user";
-    // ci.keep_alive = 0;
-    // ci.will_topic = NULL;
-    // ci.will_msg = NULL;
-    // ci.will_retain = 0;
-    // ci.will_qos = 0;
-
-    // ip_addr_t mqtt_ip;
-    // ip4addr_aton(MQTT_ADDR, &mqtt_ip);
-
-    // cyw43_arch_lwip_begin();
-    // err = mqtt_client_connect(client, &mqtt_ip, MQTT_ADDR_PORT, mqtt_connection_cb, 0, &ci);
-    // cyw43_arch_lwip_end();
-
-    // /* For now just print the result code if something goes wrong*/
-    // if (err != ERR_OK) {
-    //     log_send(LogType::STANDARD, "mqtt_connect return %d\n", err);
-    // }
-
     wifi_ptr->initMqtt();
 
     watchdog_update(); //Update WDT
