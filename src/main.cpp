@@ -252,7 +252,7 @@ void wifi_task(void *pvParameters)
     Wifi    *wifi_ptr   = (Wifi*)pvParameters;
 
     log_send(LogType::STANDARD, "Initializing wifi...\n");
-    if (wifi_ptr->init()) {
+    if (wifi_ptr->init(&mtr)) {
         log_send(LogType::ERROR, "Failed to init CYW43 Wifi & LED\n");
     }
 

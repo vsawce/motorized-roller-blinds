@@ -56,8 +56,9 @@ Wifi::Wifi()
     //Empty for now...
 }
 
-int Wifi::init()
+int Wifi::init(Motor *mtr)
 {
+    m_mtr = mtr;
     if (cyw43_arch_init()) {
         //printf("Failed to initialize the CYW43 architecture.\n");
         return -1;

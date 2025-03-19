@@ -12,6 +12,7 @@
 #include "task.h"
 #include "ping.h"
 
+#include "motor.h"
 #include "logger.h"
 
 #define MQTT_ADDR   "10.0.2.7" //Home assistant static IP
@@ -43,13 +44,14 @@ class Wifi
 {
     public:
         Wifi();
-        int init(); //cyw43_arch_init
+        int init(Motor *mtr); //cyw43_arch_init
         void enableStationMode();
         int connectToWifi(const char *ssid, const char *pw, uint32_t authMethod, uint32_t timeout);
         void initMqtt();
         err_t connectMqtt();
 
     private:
+        Motor *m_mtr;
         mqtt_client_t *m_mqttClient;
         struct mqtt_connect_client_info_t m_ciStruct;
 
