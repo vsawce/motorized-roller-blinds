@@ -1,5 +1,10 @@
 #include "wifi.h"
 
+uint8_t json_get_percent_val(const uint8_t *data, uint16_t data_len, const uint8_t *key, uint16_t key_len)
+{
+    //TODO
+}
+
 void mqtt_incoming_data_cb(void *arg, const uint8_t *data, uint16_t len, uint8_t flags) {
     log_send(LogType::DEBUG, "Incoming publish payload with length %d, flags %u", len, (unsigned int)flags);
 
@@ -14,6 +19,8 @@ void mqtt_incoming_data_cb(void *arg, const uint8_t *data, uint16_t len, uint8_t
         memcpy(data_cpy, data, len); //Set all members to null char
         data_cpy[len] = '\0'; //Manually append null char
         log_send(LogType::DEBUG, "Content: %s", data_cpy);
+        log_send(LogType::DEBUG, "MQTT_POS_JSON_KEY_LEN: %d", MQTT_POS_JSON_KEY_LEN);
+
     }
     else {
         /* Handle fragmented payload, store in buffer, write to file or whatever */

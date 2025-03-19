@@ -34,6 +34,8 @@
 #endif
 
 #define MQTT_POS_REQUEST_TOPIC "/blinds/" MQTT_CLIENT_ID "/pos_request"
+#define MQTT_POS_JSON_KEY "pos"
+#define MQTT_POS_JSON_KEY_LEN (sizeof(MQTT_POS_JSON_KEY)-1) //Minus one to del \0
 
 #ifndef PING_ADDR
 //#define PING_ADDR "10.0.2.7"
