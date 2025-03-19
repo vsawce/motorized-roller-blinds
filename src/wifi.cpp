@@ -1,13 +1,19 @@
 #include "wifi.h"
 
 void mqtt_incoming_data_cb(void *arg, const uint8_t *data, uint16_t len, uint8_t flags) {
-    log_send(LogType::DEBUG, "Incoming publish payload with length %d, flags %u\n", len, (unsigned int)flags);
-  
+    log_send(LogType::DEBUG, "Incoming publish payload with length %d, flags %u", len, (unsigned int)flags);
+
     if (flags & MQTT_DATA_FLAG_LAST) {
         /* Last fragment of payload received (or whole part if payload fits receive buffer
             See MQTT_VAR_HEADER_BUFFER_LEN)  */
-        log_send(LogType::DEBUG, "flags & MQTT_DATA_FLAG_LAST\n");
-        log_send(LogType::DEBUG, "Content: %s\n", data);
+        
+        log_send(LogType::DEBUG, "flags & MQTT_DATA_FLAG_LAST");
+
+        //String copy buffer. +1 for null char
+        char data_cpy[len+1];
+        memcpy(data_cpy, data, len); //Set all members to null char
+        data_cpy[len] = '\0'; //Manually append null char
+        log_send(LogType::DEBUG, "Content: %s", data_cpy);
     }
     else {
         /* Handle fragmented payload, store in buffer, write to file or whatever */
