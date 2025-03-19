@@ -38,8 +38,8 @@ void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status
 
         log_send(LogType::STANDARD, "mqtt_connection_cb: mqtt_set_inpub_callback done\n");
 
-        // Subscribe to topic MQTT_POSITION_TOPIC with QoS 0
-        err = mqtt_subscribe(client, MQTT_POSITION_TOPIC, 0, mqtt_sub_request_cb, arg);
+        // Subscribe to topic MQTT_POS_REQUEST_TOPIC with QoS 0
+        err = mqtt_subscribe(client, MQTT_POS_REQUEST_TOPIC, 0, mqtt_sub_request_cb, arg);
 
         if (err != ERR_OK) {
             log_send(LogType::STANDARD, "mqtt_subscribe return: %d\n", err);
