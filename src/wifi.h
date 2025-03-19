@@ -32,7 +32,7 @@
 #warning "MQTT_PASSWORD not defined! Leaving as empty"
 #endif
 
-#define MQTT_TOPIC "/blinds/" MQTT_CLIENT_ID
+#define MQTT_POSITION_TOPIC "/blinds/" MQTT_CLIENT_ID "/pos_request"
 
 #ifndef PING_ADDR
 //#define PING_ADDR "10.0.2.7"
