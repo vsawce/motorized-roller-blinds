@@ -1,5 +1,7 @@
 #include "wifi.h"
 
+static Motor *mtr_;
+
 uint8_t json_get_percent_val(const char *data, uint16_t data_len, const char *key, uint16_t key_len)
 {
     //255 is invalid return value
@@ -106,8 +108,12 @@ void mqtt_incoming_data_cb(void *arg, const uint8_t *data, uint16_t len, uint8_t
         data_cpy[len] = '\0'; //Manually append null char
         log_send(LogType::DEBUG, "Content: %s", data_cpy);
 
-        uint8_t rotateToPercent = json_get_percent_val(data_cpy, len, MQTT_POS_JSON_KEY, MQTT_POS_JSON_KEY_LEN);
-        log_send(LogType::DEBUG, "json_get_percent_val rotateToPercent %u", rotateToPercent);
+        MotorCommandMessage cmd;
+        cmd.mc = MotorCommand::ROTATE_TO_PERCENT;
+        cmd.pos = json_get_percent_val(data_cpy, len, MQTT_POS_JSON_KEY, MQTT_POS_JSON_KEY_LEN);
+        log_send(LogType::DEBUG, "json_get_percent_val sending MotorCommandMessage to queue with pos=%u...", cmd.pos);
+        xQueueSend(mtr_->getCommandQueue(), &cmd, pdMS_TO_TICKS(CMD_TIMEOUT_MS));
+        log_send(LogType::DEBUG, "json_get_percent_val sent MotorCommandMessage to queue with pos=%u!", cmd.pos);
 
     }
     else {
@@ -153,7 +159,7 @@ Wifi::Wifi()
 
 int Wifi::init(Motor *mtr)
 {
-    m_mtr = mtr;
+    mtr_ = mtr;
     if (cyw43_arch_init()) {
         //printf("Failed to initialize the CYW43 architecture.\n");
         return -1;

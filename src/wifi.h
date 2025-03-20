@@ -53,7 +53,6 @@ class Wifi
         err_t connectMqtt();
 
     private:
-        Motor *m_mtr;
         mqtt_client_t *m_mqttClient;
         struct mqtt_connect_client_info_t m_ciStruct;
 
