@@ -57,9 +57,8 @@ uint8_t json_get_percent_val(const char *data, uint16_t data_len, const char *ke
                         char readKey[i-j+1]; //Minus 1 to delete %
                         memcpy(readKey, &data_cpy[j], i-j);
                         readKey[i-j] = '\0';
-                        log_send(LogType::DEBUG, "json_get_percent_val readKey %s\nkey %s key_len %u", readKey, key, key_len);
                         if (!strncmp(readKey, key, key_len)) { //Are read key and target key the same?
-                            log_send(LogType::DEBUG, "json_get_percent_val found key\n%s", readKey);
+                            log_send(LogType::DEBUG, "json_get_percent_val found key: %s", readKey);
                             keyFound = 1; //Flag val as the next one is to be returned
                         }
                     }
@@ -69,7 +68,7 @@ uint8_t json_get_percent_val(const char *data, uint16_t data_len, const char *ke
                             memcpy(readVal, &data_cpy[j], i-j-1);
                             readVal[i-j-1] = '\0';
                             percent_val = strtoul(readVal, NULL, 10);
-                            log_send(LogType::DEBUG, "json_get_percent_val found val \n%s\n%u", readVal, percent_val);
+                            log_send(LogType::DEBUG, "json_get_percent_val found val: %s", readVal);
                             break;
                         }
                     }
@@ -83,7 +82,6 @@ uint8_t json_get_percent_val(const char *data, uint16_t data_len, const char *ke
         else {
             if (foundFirstQuote && !firstIdxSet) {
                 j = i; //Mark first index of key or value
-                log_send(LogType::DEBUG, "j %u", j);
                 firstIdxSet = 1;
             }
         }
@@ -107,9 +105,9 @@ void mqtt_incoming_data_cb(void *arg, const uint8_t *data, uint16_t len, uint8_t
         memcpy(data_cpy, data, len); //Set all members to null char
         data_cpy[len] = '\0'; //Manually append null char
         log_send(LogType::DEBUG, "Content: %s", data_cpy);
-        log_send(LogType::DEBUG, "MQTT_POS_JSON_KEY_LEN: %d", MQTT_POS_JSON_KEY_LEN);
 
-        log_send(LogType::DEBUG, "json_get_percent_val ret %u", json_get_percent_val(data_cpy, len, MQTT_POS_JSON_KEY, MQTT_POS_JSON_KEY_LEN));
+        uint8_t rotateToPercent = json_get_percent_val(data_cpy, len, MQTT_POS_JSON_KEY, MQTT_POS_JSON_KEY_LEN);
+        log_send(LogType::DEBUG, "json_get_percent_val rotateToPercent %u", rotateToPercent);
 
     }
     else {
