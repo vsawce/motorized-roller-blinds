@@ -1,8 +1,94 @@
 #include "wifi.h"
 
-uint8_t json_get_percent_val(const uint8_t *data, uint16_t data_len, const uint8_t *key, uint16_t key_len)
+uint8_t json_get_percent_val(const char *data, uint16_t data_len, const char *key, uint16_t key_len)
 {
-    //TODO
+    //255 is invalid return value
+    uint8_t percent_val = 255;
+
+    //  Zero length
+    if (!data_len || !key_len) {
+        log_send(LogType::DEBUG, "json_get_percent_val zero length! data_len=%d, key_len=%u", data_len, key_len);
+        return percent_val;
+    }
+    //key is bigger than data
+    if (key_len > data_len) {
+        log_send(LogType::DEBUG, "json_get_percent_val key_len cannot be bigger than data_len! data_len=%d, key_len=%u", data_len, key_len);
+        return percent_val;
+    }
+    //Null string
+    if (data == NULL || key == NULL) {
+        log_send(LogType::DEBUG, "json_get_percent_val null string!");
+        return percent_val;
+    }
+
+    char data_cpy[data_len+1];
+    memcpy(data_cpy, data, data_len); //Set all members to null char
+    data_cpy[data_len] = '\0'; //Manually append null char
+    
+    uint16_t i = 0; //Index incrementing through 
+    uint16_t j = 0; //To mark first index of key or value
+    uint8_t foundFirstQuote = 0; //If 1, we found first quote of a key or value
+    uint8_t expectKey = 1; //If 0, expect value and not key
+    uint8_t keyFound = 0;
+    uint8_t firstIdxSet = 0; //If 1, then we have marked a valid j
+
+    // // Bit 0 = Found first quote (If 1, we found first quote of a key or value)
+    // // Bit 1 = Expect key (//If 0, expect value and not key)
+    // // Bit 2 = Key was hit (If 1, key was hit!)
+    // uint8_t flag = 0b011;
+
+    // While not json ending bracket or null character
+    // Parse sequentially through array
+    // ex: {"pos":"50%"}
+    // 0   1   2   3   4   5   6   7   8   9   10  11  12
+    // {   "   p   o   s   "   :   "   5   0   %   "   }
+
+    while (data_cpy[i] != '}' && data_cpy[i] != '\0') {
+        if (data_cpy[i] == '\"') {
+            if (!foundFirstQuote) {     //If flag indicates we haven't found first quote yet
+                foundFirstQuote = 1;    //Found the first quote
+            }
+            else {  //Second/closing quote
+                //Found quote so end key/value parse, subtract j from i
+                if (i-j) { //Non empty key or value
+                    //char keyval[i-j];
+                    //memcpy(keyval, &data_cpy[j], i-j);
+                    if (expectKey) {
+                        char readKey[i-j+1]; //Minus 1 to delete %
+                        memcpy(readKey, &data_cpy[j], i-j);
+                        readKey[i-j] = '\0';
+                        if (!strncmp(readKey, key, key_len)) { //Are read key and target key the same?
+                            log_send(LogType::DEBUG, "json_get_percent_val found key: %s", readKey);
+                            keyFound = 1; //Flag val as the next one is to be returned
+                        }
+                    }
+                    else { //expect value
+                        if (keyFound) { //We found the value to return!
+                            char readVal[i-j]; //Minus 1 to delete %
+                            memcpy(readVal, &data_cpy[j], i-j-1);
+                            readVal[i-j-1] = '\0';
+                            percent_val = strtoul(readVal, NULL, 10);
+                            log_send(LogType::DEBUG, "json_get_percent_val found val: %s", readVal);
+                            break;
+                        }
+                    }
+                }
+
+                expectKey = !expectKey; //Flip expectation on second/closing quote
+                firstIdxSet = 0; //Reset
+                foundFirstQuote = 0; //Reset
+            }
+        }
+        else {
+            if (foundFirstQuote && !firstIdxSet) {
+                j = i; //Mark first index of key or value
+                firstIdxSet = 1;
+            }
+        }
+        i++; //Move to next character
+    }
+
+    return percent_val;
 }
 
 void mqtt_incoming_data_cb(void *arg, const uint8_t *data, uint16_t len, uint8_t flags) {
@@ -19,7 +105,9 @@ void mqtt_incoming_data_cb(void *arg, const uint8_t *data, uint16_t len, uint8_t
         memcpy(data_cpy, data, len); //Set all members to null char
         data_cpy[len] = '\0'; //Manually append null char
         log_send(LogType::DEBUG, "Content: %s", data_cpy);
-        log_send(LogType::DEBUG, "MQTT_POS_JSON_KEY_LEN: %d", MQTT_POS_JSON_KEY_LEN);
+
+        uint8_t rotateToPercent = json_get_percent_val(data_cpy, len, MQTT_POS_JSON_KEY, MQTT_POS_JSON_KEY_LEN);
+        log_send(LogType::DEBUG, "json_get_percent_val rotateToPercent %u", rotateToPercent);
 
     }
     else {
