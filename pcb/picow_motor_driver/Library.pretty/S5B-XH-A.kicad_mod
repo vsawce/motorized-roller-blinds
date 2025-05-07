@@ -1,0 +1,229 @@
+(footprint "S5B-XH-A"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "S5B-XH-A(LF)(SN)")
+	(tags "Connector")
+	(property "Reference" "J**"
+		(at 0 0 0)
+		(layer "F.SilkS")
+		(uuid "249c2a0b-19b1-419c-943c-b0f921fff517")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(property "Value" "S5B-XH-A"
+		(at 0 0 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "3d2b6f3e-f808-423f-8691-4e7dc47ed719")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "64748a80-c916-4e20-8044-37382fa34243")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "0f4e091a-c15f-4174-bdce-74fa87eb4f79")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -12.45 -9.2)
+		(end -12.45 2.3)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "9abaeccf-a7cd-4106-9a5c-d9198609b74f")
+	)
+	(fp_line
+		(start 2.45 -9.2)
+		(end -12.45 -9.2)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0db89750-f108-4f46-a10a-d96a5cfaad38")
+	)
+	(fp_line
+		(start 2.45 0)
+		(end 2.45 -9.2)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "9f78e2d8-1237-4fd4-b81c-f356309803ff")
+	)
+	(fp_line
+		(start -12.7 -9.45)
+		(end 2.7 -9.45)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "ebd33855-9450-4d1d-ad32-5560d73753fd")
+	)
+	(fp_line
+		(start -12.7 2.55)
+		(end -12.7 -9.45)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "c27245a2-cf81-4c01-99c0-0d97bda2e5ac")
+	)
+	(fp_line
+		(start 2.7 -9.45)
+		(end 2.7 2.55)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "9046d4ba-4536-42ef-9424-85ce7a476a72")
+	)
+	(fp_line
+		(start 2.7 2.55)
+		(end -12.7 2.55)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "6073d8a7-ff15-4b3c-bbf3-0c621006ce80")
+	)
+	(fp_line
+		(start -12.45 -9.2)
+		(end 2.45 -9.2)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "33c89f2e-17f1-4546-bd93-cbb9b43cd208")
+	)
+	(fp_line
+		(start -12.45 2.3)
+		(end -12.45 -9.2)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "e1b350a7-f643-44eb-9270-7f1377e24256")
+	)
+	(fp_line
+		(start 2.45 -9.2)
+		(end 2.45 2.3)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "c4b1ebcd-da1c-4cf6-9c52-58d607e50630")
+	)
+	(fp_line
+		(start 2.45 2.3)
+		(end -12.45 2.3)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "f5f6b88e-cee2-47e5-ba13-32269c8f6d81")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "9eb7cf2e-5c25-4869-ba8e-8cd899587d47")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(pad "1" thru_hole rect
+		(at 0 0)
+		(size 1.65 1.65)
+		(drill 1.1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "96e6ec85-76fe-41ee-a74e-fa69a402e484")
+	)
+	(pad "2" thru_hole circle
+		(at -2.5 0)
+		(size 1.65 1.65)
+		(drill 1.1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "150da3fa-a2c0-4219-9dc4-b5efbe94b89c")
+	)
+	(pad "3" thru_hole circle
+		(at -5 0)
+		(size 1.65 1.65)
+		(drill 1.1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "5702de20-8be2-430c-a289-d799d3162ba0")
+	)
+	(pad "4" thru_hole circle
+		(at -7.5 0)
+		(size 1.65 1.65)
+		(drill 1.1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "4feac74b-e6bf-4bdb-b8ff-75ea8bd0c134")
+	)
+	(pad "5" thru_hole circle
+		(at -10 0)
+		(size 1.65 1.65)
+		(drill 1.1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "9013bfb2-67c9-454b-aadc-b84b31237efa")
+	)
+	(embedded_fonts no)
+	(model "S5B-XH-A_LF__SN_.stp"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
