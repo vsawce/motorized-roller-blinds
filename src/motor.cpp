@@ -172,14 +172,14 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps, bool disa
             for (uint16_t pos = 0; pos < numSteps; pos++) {
                 m_currentStepPos++;
                 set_step(pos % m_numPhases);
-                vTaskDelay(pdMS_TO_TICKS(10));
+                vTaskDelay(pdMS_TO_TICKS(MOTOR_DRIVE_SPEED_MS_FORWARD));
             }
         }
         else {
             for (uint16_t pos = numSteps; pos > 0; pos--) {
                 m_currentStepPos--;
                 set_step(pos % m_numPhases);
-                vTaskDelay(pdMS_TO_TICKS(10));
+                vTaskDelay(pdMS_TO_TICKS(MOTOR_DRIVE_SPEED_MS_REVERSE));
             }
         }
     }
@@ -192,7 +192,7 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps, bool disa
                 }
                 m_currentStepPos++;
                 set_step(pos % m_numPhases);
-                vTaskDelay(pdMS_TO_TICKS(10));
+                vTaskDelay(pdMS_TO_TICKS(MOTOR_DRIVE_SPEED_MS_FORWARD));
             }
         }
         else {
@@ -203,7 +203,7 @@ void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps, bool disa
                 }
                 m_currentStepPos--;
                 set_step(pos % m_numPhases);
-                vTaskDelay(pdMS_TO_TICKS(10));
+                vTaskDelay(pdMS_TO_TICKS(MOTOR_DRIVE_SPEED_MS_REVERSE));
             }
         }
     }
