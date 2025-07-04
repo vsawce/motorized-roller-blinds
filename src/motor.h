@@ -60,7 +60,7 @@ class Motor
         uint8_t processCommands(TimerHandle_t mr_th);     //All-inclusive function to drive queued motor commands. Ret 0 if no command processed during call
         void set_step(uint8_t phase);
         void calibrateCurrentStepPosZero();     //Call when motor is in zero'd position
-        void rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps);                //Rotate based on # steps
+        void rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps, bool disable_limit = false);    //Rotate based on # steps
         void rotateNumFullRotations(MotorDriveDirection dir, uint8_t numRotations);     //Rotate shaft amount of degrees
         void rotateToPercent(uint8_t percent);   //Rotate to a specified percentage
         void rotateLinearHeightMillimeters(MotorDriveDirection dir, uint8_t height_mm); //Rotate linear distance
@@ -71,7 +71,7 @@ class Motor
         const uint8_t   *m_driveMode;
         uint8_t         m_numPhases;
         uint16_t        m_numStepsPerFullRotation;
-        uint32_t        m_currentStepPos;
+        int32_t        m_currentStepPos;
         uint32_t        m_windowHeightLimitSteps;
         QueueHandle_t   m_commandQueue;
         

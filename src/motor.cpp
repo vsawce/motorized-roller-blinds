@@ -135,10 +135,10 @@ uint8_t Motor::processCommands(TimerHandle_t mr_th)
                 rotateToPercent(cmd.pos);
                 break;
             case MotorCommand::BUTTON_UP:
-                rotateNumSteps(MotorDriveDirection::Forward, BUTTON_STEPS_PER_UPDATE); //Rotate # steps based on user-def macro
+                rotateNumSteps(MotorDriveDirection::Forward, BUTTON_STEPS_PER_UPDATE, true); //Rotate # steps based on user-def macro
                 break;
             case MotorCommand::BUTTON_DOWN:
-                rotateNumSteps(MotorDriveDirection::Reverse, BUTTON_STEPS_PER_UPDATE); //Rotate # steps based on user-def macro
+                rotateNumSteps(MotorDriveDirection::Reverse, BUTTON_STEPS_PER_UPDATE, true); //Rotate # steps based on user-def macro
                 break;
             case MotorCommand::CALIBRATE:
                 calibrateCurrentStepPosZero();
@@ -165,28 +165,46 @@ void Motor::calibrateCurrentStepPosZero()
     log_send(LogType::STANDARD, "Calibrated, set current step pos to 0");
 }
 
-void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps)
+void Motor::rotateNumSteps(MotorDriveDirection dir, uint32_t numSteps, bool disable_limit)
 {
-    if (dir == MotorDriveDirection::Forward) {
-        for (uint16_t pos = 0; pos < numSteps; pos++) {
-            if (m_currentStepPos == m_windowHeightLimitSteps) {
-                log_send(LogType::STANDARD, "Max window height reached! Current/max pos: %u steps\n", m_currentStepPos);
-                break;
+    if (disable_limit) {
+        if (dir == MotorDriveDirection::Forward) {
+            for (uint16_t pos = 0; pos < numSteps; pos++) {
+                m_currentStepPos++;
+                set_step(pos % m_numPhases);
+                vTaskDelay(pdMS_TO_TICKS(10));
             }
-            m_currentStepPos++;
-            set_step(pos % m_numPhases);
-            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+        else {
+            for (uint16_t pos = numSteps; pos > 0; pos--) {
+                m_currentStepPos--;
+                set_step(pos % m_numPhases);
+                vTaskDelay(pdMS_TO_TICKS(10));
+            }
         }
     }
     else {
-        for (uint16_t pos = numSteps; pos > 0; pos--) {
-            if (m_currentStepPos == 0) {
-                log_send(LogType::STANDARD, "Min window retraction reached! Current pos is zero!\n");
-                break;
+        if (dir == MotorDriveDirection::Forward) {
+            for (uint16_t pos = 0; pos < numSteps; pos++) {
+                if (m_currentStepPos == m_windowHeightLimitSteps) {
+                    log_send(LogType::STANDARD, "Max window height reached! Current/max pos: %u steps\n", m_currentStepPos);
+                    break;
+                }
+                m_currentStepPos++;
+                set_step(pos % m_numPhases);
+                vTaskDelay(pdMS_TO_TICKS(10));
             }
-            m_currentStepPos--;
-            set_step(pos % m_numPhases);
-            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+        else {
+            for (uint16_t pos = numSteps; pos > 0; pos--) {
+                if (m_currentStepPos == 0) {
+                    log_send(LogType::STANDARD, "Min window retraction reached! Current pos is zero!\n");
+                    break;
+                }
+                m_currentStepPos--;
+                set_step(pos % m_numPhases);
+                vTaskDelay(pdMS_TO_TICKS(10));
+            }
         }
     }
 }
