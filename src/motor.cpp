@@ -6,34 +6,36 @@ constexpr uint8_t MAX_PERCENT = 100; //Constant for rotateToPercent
 
 //  NORMAL DRIVE (more power, more torque)
 //  -----------
-//   Phase DCBA Val
-//   0     0011 0x3
-//   1     0110 0x6
-//   2     1100 0xC
-//   3     1001 0x9
-constexpr uint8_t normalDriveStepSequence[4] = {0x3, 0x6, 0xC, 0x9};
+//   0     1001 0x9
+//   1     1100 0xC
+//   2     0110 0x6
+//   3     0011 0x3
+constexpr uint8_t normalDriveStepSequence[4] = {0x9, 0xC, 0x6, 0x3};
+// constexpr uint8_t normalDriveStepSequence[4] = {0x3, 0x6, 0xC, 0x9};
 
 //  WAVE DRIVE (less power, but less torque)
 //  -----------
 //   Phase DCBA Val
-//   0     0001 0x1
-//   1     0010 0x2
-//   2     0100 0x4
-//   3     1000 0x8
-constexpr uint8_t waveDriveStepSequence[4] = {0x1, 0x2, 0x4, 0x8};
+//   0     1000 0x8
+//   1     0100 0x4
+//   2     0010 0x2
+//   3     0001 0x1
+constexpr uint8_t waveDriveStepSequence[4] = {0x8, 0x4, 0x2, 0x1};
+// constexpr uint8_t waveDriveStepSequence[4] = {0x1, 0x2, 0x4, 0x8};
 
 //  HALF STEP DRIVE (Slower, but more accuracy)
 //  -----------
 //   Phase DCBA Val
-//   0     0001 0x1
-//   1     0011 0x3
-//   2     0010 0x2
-//   3     0110 0x6
-//   4     0100 0x4
-//   5     1100 0xC
-//   6     1000 0x8
-//   7     1001 0x9
-constexpr uint8_t halfStepDriveStepSequence[8] = {0x1, 0x3, 0x2, 0x6, 0x4, 0xc, 0x8, 0x9};
+//   0     1001 0x9
+//   1     1000 0x8
+//   2     1100 0xC
+//   3     0100 0x4
+//   4     0110 0x6
+//   5     0010 0x2
+//   6     0011 0x3
+//   7     0001 0x1
+constexpr uint8_t halfStepDriveStepSequence[8] = {0x9, 0x8, 0xc, 0x4, 0x6, 0x2, 0x3, 0x1};
+// constexpr uint8_t halfStepDriveStepSequence[8] = {0x1, 0x3, 0x2, 0x6, 0x4, 0xc, 0x8, 0x9};
 
 constexpr uint8_t NUM_PINS = 4;
 
