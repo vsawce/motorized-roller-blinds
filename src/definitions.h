@@ -18,8 +18,8 @@ namespace CYW43
 
 namespace BLINDS
 {
-    constexpr uint8_t SHAFT_DIAMETER_MM = 40;            // ~4cm shaft
-    constexpr uint16_t WINDOW_HEIGHT_MM = 1778 + 102;    // 70 inch window (1778mm) + 4 inch buffer
+    constexpr uint8_t SHAFT_DIAMETER_MM = 40;               // ~4cm shaft
+    constexpr uint16_t WINDOW_HEIGHT_MM = 1778 + 120;       // 70 inch window (1778mm) + ~5 in buffer
 }
 
 //////////////

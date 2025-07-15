@@ -18,8 +18,8 @@
 #define CMD_QUEUE_SIZE 5           // Maximum number of messages in the queue
 #define CMD_TIMEOUT_MS 100
 
-#define MOTOR_DRIVE_SPEED_MS_FORWARD    3       //Drive each GPIO every x ms
-#define MOTOR_DRIVE_SPEED_MS_REVERSE    8       //Drive each GPIO every x ms
+#define MOTOR_DRIVE_SPEED_MS_FORWARD    4       //Drive each GPIO every x ms
+#define MOTOR_DRIVE_SPEED_MS_REVERSE    4       //Drive each GPIO every x ms
 #define MOTOR_RELEASE_TIMEOUT_MS        1000    //Release motor if no new command after x ms
 
 #define BUTTON_STEPS_PER_UPDATE         10      //Number of steps to increase per button update/action
