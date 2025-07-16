@@ -264,8 +264,9 @@ void wifi_task(void *pvParameters)
     watchdog_update(); //Update WDT
     
     log_send(LogType::STANDARD, "Connecting to wifi SSID %s ...\n", WIFI_SSID);
-    if (wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS)) {
-        log_send(LogType::ERROR, "Failed to connect to wifi SSID %s . Timeout: \n", WIFI_SSID);
+    int err = wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS);
+    if (err) {
+        log_send(LogType::ERROR, "Failed to connect to wifi SSID %s, timeout: %ums | Err code %d\n", WIFI_SSID, CYW43::WIFI_TIMEOUT_MS, err);
     }
     else {
         log_send(LogType::STANDARD, "Connected to wifi SSID %s !\n", WIFI_SSID);
