@@ -43,7 +43,7 @@ extern "C" {
 
 // Whether to flash the led
 #ifndef USE_LED
-#define USE_LED 1
+#define USE_LED 0
 #endif
 
 // Whether to busy wait in the led thread
