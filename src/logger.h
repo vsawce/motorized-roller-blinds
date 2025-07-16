@@ -21,7 +21,7 @@ enum class LogType {
 #define LOG_ENABLE_DEBUG 1
 
 #define LOG_QUEUE_SIZE 10           // Maximum number of messages in the queue
-#define LOG_MESSAGE_MAX_LENGTH 128   // Maximum length of each log message
+#define LOG_MESSAGE_MAX_LENGTH 256   // Maximum length of each log message
 
 uint32_t log_getUptimeCentiseconds(void); //Centiseconds should last ~1.36 years with uint32_t
 
