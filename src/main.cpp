@@ -43,7 +43,7 @@ extern "C" {
 
 // Whether to flash the led
 #ifndef USE_LED
-#define USE_LED 0
+#define USE_LED 1
 #endif
 
 // Whether to busy wait in the led thread
@@ -264,14 +264,17 @@ void wifi_task(void *pvParameters)
     watchdog_update(); //Update WDT
     
     log_send(LogType::STANDARD, "Connecting to wifi SSID %s ...\n", WIFI_SSID);
-    int err = wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS);
-    if (err) {
-        log_send(LogType::ERROR, "Failed to connect to wifi SSID %s, timeout: %ums | Err code %d\n", WIFI_SSID, CYW43::WIFI_TIMEOUT_MS, err);
-    }
-    else {
-        log_send(LogType::STANDARD, "Connected to wifi SSID %s !\n", WIFI_SSID);
-    }
+    int err;
+    //Loop while there is an error present
+    do {
+        err = wifi_ptr->connectToWifi(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, CYW43::WIFI_TIMEOUT_MS);
+        if (err) {
+            log_send(LogType::ERROR, "Failed to connect to wifi SSID %s, timeout: %ums | Err code %d\n", WIFI_SSID, CYW43::WIFI_TIMEOUT_MS, err);
+            log_send(LogType::STANDARD, "Trying again...\n");
+        }
+    } while (err);
 
+    log_send(LogType::STANDARD, "Connected to wifi SSID %s !\n", WIFI_SSID);
     log_send(LogType::STANDARD, "Assigned IP is: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
 
     watchdog_update(); //Update WDT
