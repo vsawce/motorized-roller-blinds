@@ -192,7 +192,7 @@ void Wifi::enableStationMode()
 
 int Wifi::connectToWifi(const char *ssid, const char *pw, uint32_t authMethod, uint32_t timeout)
 {
-    return cyw43_arch_wifi_connect_timeout_ms(ssid, pw, authMethod, 30000);
+    return cyw43_arch_wifi_connect_timeout_ms(ssid, pw, authMethod, timeout);
 }
 
 err_t Wifi::connectMqtt()
