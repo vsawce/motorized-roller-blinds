@@ -243,7 +243,8 @@ void wifi_task(void *pvParameters)
         printf("Clean boot\n");
     }
 
-    watchdog_enable(WDT_DURATION_MS, 1); //If WDT not updated for WDT_DURATION_MS ms, reset. 2nd arg = 1 = pause during debug
+    //If WDT not updated for WDT_DURATION_MS + wifi timeout ms, reset. 2nd arg = 1 = pause during debug
+    watchdog_enable((WDT_DURATION_MS+CYW43::WIFI_TIMEOUT_MS), 1); 
 
     //printf("\"BLINDS::WINDOW_HEIGHT_MM\":%dmm\t\"getWindowHeightLimitSteps()\": %dsteps\n", BLINDS::WINDOW_HEIGHT_MM, mtr.getWindowHeightLimitSteps());
 
