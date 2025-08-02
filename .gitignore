@@ -33,4 +33,5 @@
 
 # Pico W Project Specific
 build/
+build_pico2/
 ,vscode/
